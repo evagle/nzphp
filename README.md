@@ -1,16 +1,9 @@
 ##ZPHP
-ZPHP是一个极轻的的，定位于后置SOA服务的框架，可开发独立高效的长驻服务，并能适应多端的变化。
+NZPHP继承自ZPHP[https://github.com/shenzhe/zphp](https://github.com/shenzhe/zphp)
+ZPHP是一个极轻的，定位于后置SOA服务的框架，可开发独立高效的长驻服务，并能适应多端的变化。
 
-###发起人
-* shenzhe (泽泽，半桶水) / shenzhe163@gmail.com
-
-###维护者
-* godsoul [www.osfans.org(godsoul1986@gmail.com)
-* cooper [https://github.com/huanghua581](https://github.com/huanghua581)
-* yongchuan (charles) / charles.m1256@gmail.com
-* ruanxianhuo  https://github.com/asdf20122012 ruanxianhuo@126.com
-* Brian binglianghuang@gmail.com
-
+###开发者
+* abing binglianghuang@gmail.com
 
 ##特色
 
