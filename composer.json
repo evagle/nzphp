@@ -21,7 +21,7 @@
         }
     },
 	"autoload": {
-        "psr-0": { "ZPHP\\": "" }
+        "psr-0": { "ZPHP\\": "src/" }
     },
 	"minimum-stability": "dev"
 }
