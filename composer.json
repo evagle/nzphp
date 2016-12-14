@@ -3,7 +3,7 @@
 	"type": "framework",
     "description": "ZPHP is a light that is dedicated to gaming, social networking, web, mobile server-side frameworks. Providing high performance real-time communication solutions.",
     "keywords": ["framework", "server", "socket", "multi", "progress" ,"thread"],
-    "homepage": "https://github.com/evagle/zphp",
+    "homepage": "https://github.com/evagle/nzphp",
     "license": "MIT",
 	"authors": [
 		{
