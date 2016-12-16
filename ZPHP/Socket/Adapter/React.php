@@ -8,7 +8,7 @@
 
 namespace ZPHP\Socket\Adapter;
 use ZPHP\Socket\IServer,
-    ZPHP\Core\Config as ZConfig,
+    ZPHP\Core\ZConfig as ZConfig,
     ZPHP\Protocol;
 use React\EventLoop\Factory as eventLoop,
     React\Socket\Server as server;

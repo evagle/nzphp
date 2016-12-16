@@ -3,7 +3,7 @@
 namespace ZPHP\Conn;
 
 use ZPHP\Core\Factory as ZFactory,
-	ZPHP\Core\Config as ZConfig;
+	ZPHP\Core\ZConfig as ZConfig;
 /**
  * connect处理工厂
  *

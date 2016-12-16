@@ -6,7 +6,7 @@
 
 
 namespace ZPHP\Protocol;
-use ZPHP\Core\Config as ZConfig;
+use ZPHP\Core\ZConfig as ZConfig;
 
 class Request
 {

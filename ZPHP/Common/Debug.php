@@ -3,8 +3,8 @@
 namespace ZPHP\Common;
 use ZPHP\Protocol\Request;
 use ZPHP\ZPHP,
-    ZPHP\Core\Config,
-    ZPHP\Common\Log,
+    ZPHP\Core\ZConfig,
+    ZPHP\Common\ZLog,
     ZPHP\Common\Terminal;
 
 
@@ -23,7 +23,7 @@ class Debug
 
     public static function start($key = 'ALL')
     {
-        if (!self::$xhprof && Config::getField('project', 'xhprof', 0) && \function_exists('xhprof_enable')) {
+        if (!self::$xhprof && ZConfig::getField('project', 'xhprof', 0) && \function_exists('xhprof_enable')) {
             require(ZPHP::getLibPath() . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_lib.php');
             require(ZPHP::getLibPath() . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_runs.php');
             \xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
@@ -48,7 +48,7 @@ class Debug
         if(empty($_SERVER['HTTP_HOST'])) {
             $_SERVER['HTTP_HOST'] = '';
         }
-        Log::info($logName, array($times, self::convert($mem_use), $run_id, $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'], Request::getParams()));
+        ZLog::info($logName, array($times, self::convert($mem_use), $run_id, $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'], Request::getParams()));
     }
 
 
@@ -64,7 +64,7 @@ class Debug
      */
     private static function _log($msgType, $args)
     {
-        if (!Config::getField('project', 'debug_mode', 0)) {
+        if (!ZConfig::getField('project', 'debug_mode', 0)) {
             return;
         }
 

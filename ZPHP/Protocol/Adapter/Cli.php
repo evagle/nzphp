@@ -7,7 +7,7 @@
 
 namespace ZPHP\Protocol\Adapter;
 use ZPHP\Core;
-use ZPHP\Core\Config;
+use ZPHP\Core\ZConfig;
 use ZPHP\Protocol\Request;
 use ZPHP\View;
 use ZPHP\Protocol\IProtocol;
@@ -23,18 +23,18 @@ class Cli implements IProtocol
      */
     public function parse($_data)
     {
-        $ctrlName = Config::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = Config::getField('project', 'default_method_name', 'main');
+        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
         \parse_str(array_pop($_data), $data);
-        $apn = Config::getField('project', 'ctrl_name', 'a');
-        $mpn = Config::getField('project', 'method_name', 'm');
+        $apn = ZConfig::getField('project', 'ctrl_name', 'a');
+        $mpn = ZConfig::getField('project', 'method_name', 'm');
         if (isset($data[$apn])) {
             $ctrlName = \str_replace('/', '\\', $data[$apn]);
         }
         if (isset($data[$mpn])) {
             $methodName = $data[$mpn];
         }
-        Request::init($ctrlName, $methodName, $data, Config::getField('project', 'view_mode', 'String'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'String'));
         return true;
     }
 }

@@ -6,7 +6,7 @@
 
 
 namespace ZPHP\Protocol\Adapter;
-use ZPHP\Core\Config;
+use ZPHP\Core\ZConfig;
 use ZPHP\Common\MessagePacker;
 use ZPHP\Protocol\IProtocol;
 use ZPHP\Cache\Factory as ZCache;
@@ -26,8 +26,8 @@ class ZRpack implements IProtocol
      */
     public function parse($_data)
     {
-        $ctrlName = Config::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = Config::getField('project', 'default_method_name', 'main');
+        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
         if (empty($this->_cache)) {
             $this->_cache = ZCache::getInstance('Php');
         }
@@ -52,14 +52,14 @@ class ZRpack implements IProtocol
         $packData->resetOffset(4);
         $data = [];
         $data['_cmd'] = $packData->readInt();
-        $pathinfo = Config::getField('cmdlist', $data['_cmd']);
+        $pathinfo = ZConfig::getField('cmdlist', $data['_cmd']);
         $data['_rid'] = $packData->readInt();
         $params = $packData->readString();
         $unpackData = \json_decode(gzdecode($params), true);
         if(!empty($unpackData) && \is_array($unpackData)) {
             $data += $unpackData;
         }
-        $routeMap = ZRoute::match(Config::get('route', false), $pathinfo);
+        $routeMap = ZRoute::match(ZConfig::get('route', false), $pathinfo);
         if(is_array($routeMap)) {
             $ctrlName = $routeMap[0];
             $methodName = $routeMap[1];
@@ -68,7 +68,7 @@ class ZRpack implements IProtocol
                 $data = $data + $routeMap[2];
             }
         }
-        Request::init($ctrlName, $methodName, $data, Config::getField('project', 'view_mode', 'Zpack'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'Zpack'));
         return true;
     }
 }

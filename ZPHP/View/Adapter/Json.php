@@ -10,7 +10,7 @@ namespace ZPHP\View\Adapter;
 use ZPHP\Protocol\Request;
 use ZPHP\Protocol\Response;
 use ZPHP\View\Base,
-    ZPHP\Core\Config;
+    ZPHP\Core\ZConfig;
 
 class Json extends Base
 {
@@ -19,7 +19,7 @@ class Json extends Base
         $data = \json_encode($this->model, JSON_UNESCAPED_UNICODE);
         if (Request::isHttp()) {
             $params = Request::getParams();
-            $key = Config::getField('project', 'jsonp', 'jsoncallback');
+            $key = ZConfig::getField('project', 'jsonp', 'jsoncallback');
             if(isset($params[$key])) {
                 Response::header("Content-Type", 'application/x-javascript; charset=utf-8');
                 $data = $params[$key].'('.$data.')';

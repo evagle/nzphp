@@ -7,7 +7,7 @@
 namespace ZPHP\Core;
 use ZPHP\Controller\IController,
     ZPHP\Core\Factory,
-    ZPHP\Core\Config,
+    ZPHP\Core\ZConfig,
     ZPHP\ZPHP;
 use ZPHP\Protocol\Request;
 use ZPHP\Protocol\Response;
@@ -17,7 +17,7 @@ class Route
 {
     public static function route()
     {
-        $action = Config::get('ctrl_path', 'ctrl') . '\\' . Request::getCtrl();
+        $action = ZConfig::get('ctrl_path', 'controllers') . '\\' . Request::getCtrl();
         $class = Factory::getInstance($action);
 
         try {
@@ -43,7 +43,7 @@ class Route
             }
         }catch (\Exception $e) {
             if(Request::isLongServer()) {
-                $result =  \call_user_func(Config::getField('project', 'exception_handler', 'ZPHP\ZPHP::exceptionHandler'), $e);
+                $result =  \call_user_func(ZConfig::getField('project', 'exception_handler', 'ZPHP\ZPHP::exceptionHandler'), $e);
                 if($class instanceof IController) {
                     $class->_after();
                 }

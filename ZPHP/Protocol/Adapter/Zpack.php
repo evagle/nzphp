@@ -6,7 +6,7 @@
 
 
 namespace ZPHP\Protocol\Adapter;
-use ZPHP\Core\Config;
+use ZPHP\Core\ZConfig;
 use ZPHP\Common\MessagePacker;
 use ZPHP\Protocol\IProtocol;
 use ZPHP\Protocol\Request;
@@ -22,8 +22,8 @@ class Zpack implements IProtocol
      */
     public function parse($_data)
     {
-        $ctrlName = Config::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = Config::getField('project', 'default_method_name', 'main');
+        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
         $fd = Request::getFd();
         if (!empty($this->_buffer[$fd])) {
             $_data = $this->_buffer . $_data;
@@ -44,15 +44,15 @@ class Zpack implements IProtocol
         $packData->resetOffset();
         $params = $packData->readString();
         $data = \json_decode($params, true);
-        $apn = Config::getField('project', 'ctrl_name', 'a');
-        $mpn = Config::getField('project', 'method_name', 'm');
+        $apn = ZConfig::getField('project', 'ctrl_name', 'a');
+        $mpn = ZConfig::getField('project', 'method_name', 'm');
         if (isset($params[$apn])) {
             $ctrlName = \str_replace('/', '\\', $params[$apn]);
         }
         if (isset($params[$mpn])) {
             $methodName = $params[$mpn];
         }
-        Request::init($ctrlName, $methodName, $data, Config::getField('project', 'view_mode', 'Zpack'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'Zpack'));
         return true;
     }
 }

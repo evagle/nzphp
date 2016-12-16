@@ -7,7 +7,7 @@
 
 namespace ZPHP\Db;
 use ZPHP\Protocol\Request;
-use ZPHP\Core\Config as ZConfig;
+use ZPHP\Core\ZConfig as ZConfig;
 
 class Pdo
 {

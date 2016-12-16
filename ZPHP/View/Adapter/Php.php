@@ -9,7 +9,7 @@
 namespace ZPHP\View\Adapter;
 use ZPHP,
     ZPHP\View\Base,
-    ZPHP\Core\Config;
+    ZPHP\Core\ZConfig;
 
 class Php extends Base
 {
@@ -22,7 +22,7 @@ class Php extends Base
 
     public function display()
     {
-        $tplPath = ZPHP\Core\Config::getField('project', 'tpl_path', ZPHP\ZPHP::getRootPath() . DS  . 'template' . DS . 'default'. DS);
+        $tplPath = ZPHP\Core\ZConfig::getField('project', 'views_path', ZPHP\ZPHP::getRootPath() . DS  . 'views' . DS . 'default'. DS);
         $fileName = $tplPath . $this->tplFile;
         if (!\is_file($fileName)) {
             throw new \Exception("no file {$fileName}");

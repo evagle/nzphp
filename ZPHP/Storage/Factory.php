@@ -6,7 +6,7 @@
  */
 namespace ZPHP\Storage;
 use ZPHP\Core\Factory as CFactory,
-	ZPHP\Core\Config as ZConfig;
+	ZPHP\Core\ZConfig as ZConfig;
 
 class Factory
 {

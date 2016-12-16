@@ -5,7 +5,7 @@
  */
 namespace ZPHP\Session;
 use ZPHP\Core\Factory as CFactory,
-    ZPHP\Core\Config as ZConfig;
+    ZPHP\Core\ZConfig as ZConfig;
 use ZPHP\Protocol\Request;
 
 class Factory

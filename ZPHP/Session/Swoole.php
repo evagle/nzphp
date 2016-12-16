@@ -7,7 +7,7 @@
  */
 
 namespace ZPHP\Session;
-use ZPHP\Core\Config as ZConfig;
+use ZPHP\Core\ZConfig as ZConfig;
 use ZPHP\Protocol\Request;
 use ZPHP\Protocol\Response;
 

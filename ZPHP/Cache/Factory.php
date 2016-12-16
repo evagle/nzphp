@@ -5,7 +5,7 @@
  */
 namespace ZPHP\Cache;
 use ZPHP\Core\Factory as ZFactory,
-	ZPHP\Core\Config as ZConfig;
+	ZPHP\Core\ZConfig as ZConfig;
 
 class Factory
 {

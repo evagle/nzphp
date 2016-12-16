@@ -1,7 +1,7 @@
 <?php
 namespace ZPHP\Common;
 
-use ZPHP\Core\Config as ZConfig;
+use ZPHP\Core\ZConfig as ZConfig;
 use ZPHP\Cache\Factory as ZCache;
 
 /**

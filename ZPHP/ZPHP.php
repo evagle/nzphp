@@ -7,7 +7,7 @@
 namespace ZPHP;
 use ZPHP\Protocol\Response;
 use ZPHP\View,
-    ZPHP\Core\Config,
+    ZPHP\Core\ZConfig,
     ZPHP\Common\Debug,
     ZPHP\Common\Formater;
 class ZPHP
@@ -81,6 +81,9 @@ class ZPHP
         if('ZPHP' === $pre) {
             $classpath = self::$zPath . DS . $baseClasspath;
             self::$classPath[$class] = $classpath;
+            if (substr($classpath, 0, -3) == "Log") {
+                file_put_contents("/tmp/a.log", json_encode(debug_backtrace()));
+            }
             require "{$classpath}";
             return;
         }
@@ -133,43 +136,33 @@ class ZPHP
         }
         self::$zPath = \dirname(__DIR__);
         self::setRootPath($rootPath);
-        if(empty($configPath)) {
-            if (!empty($_SERVER['HTTP_HOST'])) {
-                $configPath = \str_replace(':', '_', $_SERVER['HTTP_HOST']);
-            } elseif (!empty($_SERVER['argv'][1])) {
-                $configPath = $_SERVER['argv'][1];
-            }
-        }
-        if (substr($configPath, -3) == "_80") {
-            $configPath = substr($configPath, 0, -3);
-        }
         if (!empty($configPath)) {
             self::setConfigPath($configPath);
         }
         \spl_autoload_register(__CLASS__ . '::autoLoader');
-        Config::load(self::getConfigPath());
-        self::$libPath = Config::get('lib_path', self::$zPath . DS .'lib');
-        if ($run && Config::getField('project', 'debug_mode', 0)) {
+        ZConfig::load(self::getConfigPath());
+        self::$libPath = ZConfig::get('lib_path', self::$zPath . DS .'lib');
+        if ($run && ZConfig::get('debug', 0)) {
             Debug::start();
         }
-        $appPath = Config::get('app_path', self::$appPath);
+        $appPath = ZConfig::get('app_path', self::$appPath);
         self::setAppPath($appPath);
-        $eh = Config::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
+        $eh = ZConfig::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
         \set_exception_handler($eh);
-        \register_shutdown_function( Config::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler') );
-        if(Config::getField('project', 'error_handler')) {
-            \set_error_handler(Config::getField('project', 'error_handler'));
+        \register_shutdown_function( ZConfig::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler') );
+        if(ZConfig::getField('project', 'error_handler')) {
+            \set_error_handler(ZConfig::getField('project', 'error_handler'));
         }
-        $timeZone = Config::get('time_zone', 'Asia/Shanghai');
+        $timeZone = ZConfig::get('time_zone', 'Asia/Shanghai');
         \date_default_timezone_set($timeZone);
-        $serverMode = Config::get('server_mode', 'Http');
+        $serverMode = ZConfig::get('server_mode', 'Http');
         $service = Server\Factory::getInstance($serverMode);
         if($run) {
             $service->run();
         }else{
             return $service;
         }
-        if ($run && Config::getField('project', 'debug_mode', 0)) {
+        if ($run && ZConfig::get('debug', 0)) {
             Debug::end();
         }
     }

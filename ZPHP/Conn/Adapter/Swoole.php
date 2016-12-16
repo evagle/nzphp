@@ -1,7 +1,7 @@
 <?php
 
 namespace ZPHP\Conn\Adapter;
-use ZPHP\Core\Config as ZConfig,
+use ZPHP\Core\ZConfig as ZConfig,
     ZPHP\Conn\IConn;
 
 /**

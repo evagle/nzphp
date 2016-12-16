@@ -10,7 +10,7 @@ namespace ZPHP\View\Adapter;
 use ZPHP\Protocol\Request;
 use ZPHP\Protocol\Response;
 use ZPHP\View\Base,
-    ZPHP\Core\Config,
+    ZPHP\Core\ZConfig,
     ZPHP\Common\MessagePacker;;
 
 class ZRpack extends Base

@@ -8,7 +8,7 @@
 
 
 namespace ZPHP\Socket\Route;
-use ZPHP\Core\Config as ZConfig;
+use ZPHP\Core\ZConfig as ZConfig;
 
 class RPC
 {
