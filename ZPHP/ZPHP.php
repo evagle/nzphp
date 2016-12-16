@@ -5,6 +5,9 @@
  * 初始化框架相关信息
  */
 namespace ZPHP;
+use ZPHP\Common\ZLog;
+use ZPHP\Core\AutoLoader;
+use ZPHP\Common\ZPaths;
 use ZPHP\Protocol\Response;
 use ZPHP\View,
     ZPHP\Core\ZConfig,
@@ -22,19 +25,16 @@ class ZPHP
      * @var string
      */
     private static $configPath = 'default';
-    private static $appPath = 'apps';
-    private static $zPath;
-    private static $libPath='lib';
-    private static $classPath = array();
+//    private static $zPath;
 
     public static function getRootPath()
     {
-        return self::$rootPath;
+        return ZPaths::getPath('root_path');
     }
 
     public static function setRootPath($rootPath)
     {
-        self::$rootPath = $rootPath;
+        ZPaths::setPath("root_path", $rootPath);
     }
 
     public static function getConfigPath()
@@ -53,55 +53,12 @@ class ZPHP
 
     public static function getAppPath()
     {
-        return self::$appPath;
-    }
-
-    public static function setAppPath($path)
-    {
-        self::$appPath = $path;
-    }
-
-    public static function getZPath()
-    {
-        return self::$zPath;
+        return ZPaths::getPath('app_path');
     }
 
     public static function getLibPath()
     {
-        return self::$libPath;
-    }
-
-    final public static function autoLoader($class)
-    {
-        if(isset(self::$classPath[$class])) {
-            return;
-        }
-        $baseClasspath = \str_replace('\\', DS, $class) . '.php';
-        $pre = substr($baseClasspath, 0, 4);
-        if('ZPHP' === $pre) {
-            $classpath = self::$zPath . DS . $baseClasspath;
-            self::$classPath[$class] = $classpath;
-            if (substr($classpath, 0, -3) == "Log") {
-                file_put_contents("/tmp/a.log", json_encode(debug_backtrace()));
-            }
-            require "{$classpath}";
-            return;
-        }
-
-        if('open' === $pre || 'SDK/' == $pre || 'Http' == $pre  || 'Serv'==$pre || 'Prot'==$pre || 'noti' == $pre) {
-            $classpath = self::$rootPath . DS . '../lib'. DS . $baseClasspath;
-            self::$classPath[$class] = $classpath;
-            require "{$classpath}";
-            return;
-        }
-
-        $classpath = self::$rootPath . DS . self::$appPath . DS . $baseClasspath;
-        if (!file_exists($classpath)) {
-            $classpath = self::$rootPath . DS . '../lib'. DS . $baseClasspath;
-        }
-        self::$classPath[$class] = $classpath;
-        require "{$classpath}";
-        return;
+        return ZPaths::getPath("lib_path");
     }
 
     final public static function exceptionHandler($exception)
@@ -134,27 +91,60 @@ class ZPHP
         if (!defined('DS')) {
             define('DS', DIRECTORY_SEPARATOR);
         }
-        self::$zPath = \dirname(__DIR__);
+
+        ///// set root path
         self::setRootPath($rootPath);
         if (!empty($configPath)) {
             self::setConfigPath($configPath);
         }
-        \spl_autoload_register(__CLASS__ . '::autoLoader');
+        /// set auto loader
+        \spl_autoload_register('\ZPHP\Core\AutoLoader::autoLoader');
         ZConfig::load(self::getConfigPath());
-        self::$libPath = ZConfig::get('lib_path', self::$zPath . DS .'lib');
+
+        /// set timezone
+        $timeZone = ZConfig::get('time_zone', 'Asia/Shanghai');
+        \date_default_timezone_set($timeZone);
+
+        // set paths
+        $frameworkPath = dirname(__DIR__);
+        ZPaths::setPath('framework_path', $frameworkPath);
+
+        $appPath = ZConfig::getField('paths', 'app_path', 'app');
+        ZPaths::setPath('app_path', $rootPath . DS . $appPath);
+
+        $libPath = ZConfig::getField('paths', 'lib_path', $rootPath . DS .'lib');
+        ZPaths::setPath('lib_path', $libPath);
+
+        $viewsPath = ZConfig::getField('paths', 'views_path', $rootPath . DS .'views' . DS . "default");
+        ZPaths::setPath('views_path', $viewsPath);
+
+        $paths = ZConfig::get('paths', []);
+        foreach ($paths as $name => $path) {
+            ZPaths::setPath($name, $rootPath . DS . $path);
+        }
+
+        /// add search paths
+        AutoLoader::addSearchPath(ZPaths::getPath('framework_path') . DS);
+        AutoLoader::addSearchPath(ZPaths::getPath('app_path') . DS);
+        AutoLoader::addSearchPath(ZPaths::getPath('lib_path') . DS);
+        $searchPaths = ZConfig::get('searchpaths', []);
+        foreach ($searchPaths as $path) {
+            AutoLoader::addSearchPath(self::$rootPath . DS . $path);
+        }
+
         if ($run && ZConfig::get('debug', 0)) {
             Debug::start();
         }
-        $appPath = ZConfig::get('app_path', self::$appPath);
-        self::setAppPath($appPath);
+
+        /// set exception handler
         $eh = ZConfig::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
         \set_exception_handler($eh);
         \register_shutdown_function( ZConfig::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler') );
         if(ZConfig::getField('project', 'error_handler')) {
             \set_error_handler(ZConfig::getField('project', 'error_handler'));
         }
-        $timeZone = ZConfig::get('time_zone', 'Asia/Shanghai');
-        \date_default_timezone_set($timeZone);
+
+        /// start server
         $serverMode = ZConfig::get('server_mode', 'Http');
         $service = Server\Factory::getInstance($serverMode);
         if($run) {
@@ -162,8 +152,10 @@ class ZPHP
         }else{
             return $service;
         }
+
         if ($run && ZConfig::get('debug', 0)) {
             Debug::end();
         }
+        return null;
     }
 }

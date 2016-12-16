@@ -45,24 +45,71 @@ class ZLog
         return self::$fileLoggers[$logFileName];
     }
 
+    public static function debug($logFileName, $params = array())
+    {
+        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        self::getFileLogger($logFileName)->addDebug($message);
+    }
+
     public static function info($logFileName, $params = array())
     {
         $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
         self::getFileLogger($logFileName)->addInfo($message);
     }
 
+    /**
+     * Exceptional occurrences that are not errors
+     *
+     * Examples: Use of deprecated APIs, poor use of an API,
+     * undesirable things that are not necessarily wrong.
+     */
     public static function warning($logFileName, $params = array())
     {
         $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
         self::getFileLogger($logFileName)->addWarning($message);
     }
 
-    public static function debug($logFileName, $params = array())
+    /**
+     * Runtime errors
+     */
+    public static function error($logFileName, $params = array())
     {
         $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
-        self::getFileLogger($logFileName)->addDebug($message);
+        self::getFileLogger($logFileName)->addError($message);
     }
-    
+
+    /**
+     * Critical conditions
+     *
+     * Example: Application component unavailable, unexpected exception.
+     */
+    public static function critical($logFileName, $params = array())
+    {
+        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        self::getFileLogger($logFileName)->addCritical($message);
+    }
+
+    /**
+     * Action must be taken immediately
+     *
+     * Example: Entire website down, database unavailable, etc.
+     * This should trigger the SMS alerts and wake you up.
+     */
+    public static function alert($logFileName, $params = array())
+    {
+        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        self::getFileLogger($logFileName)->addAlert($message);
+    }
+
+    /**
+     * Urgent alert.
+     */
+    public static function emergency($logFileName, $params = array())
+    {
+        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        self::getFileLogger($logFileName)->addEmergency($message);
+    }
+
     public static function toJson($data)
     {
         if (is_string($data)) {
