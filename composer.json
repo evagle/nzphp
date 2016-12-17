@@ -13,6 +13,7 @@
 	],
 	"require": {
 		"monolog/monolog": "~1.6",
+        "illuminate/database": "*",
 		"php": ">=5.3.7"
 	},
 	"extra": {
