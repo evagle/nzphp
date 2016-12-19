@@ -27,7 +27,7 @@ class Socket implements IServer
             $socket->setClient($client);
         }
         Request::setServer(ZProtocol::getInstance(ZConfig::getField('socket', 'protocol')));
-        Request::setLongServer();
+        Request::setLongServer(1);
         Request::setHttpServer(0);
         $socket->run();
     }
