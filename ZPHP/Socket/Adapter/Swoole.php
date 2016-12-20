@@ -18,33 +18,40 @@ class Swoole implements IServer
     const TYPE_TCP = 'tcp';
     const TYPE_UDP = 'udp';
     const TYPE_HTTP = 'http';
-    const TYPE_WEBSOCKET = 'ws';
+    const TYPE_WEBSOCKET = 'websocket';
 
     public function __construct(array $config)
     {
         if(!\extension_loaded('swoole')) {
             throw new \Exception("no swoole extension. get: https://github.com/swoole/swoole-src");
         }
+        if (empty($config['server_type'])) {
+            throw new \Exception("server_type not given. Options: tcp|udp|http|websocket");
+        }
+        if (empty($config['work_mode'])) {
+            throw new \Exception("work_mode not given. Options: 1|2|3. Doc:http://wiki.swoole.com/wiki/page/353.html");
+        }
         $this->config = $config;
-        $socketType = empty($config['server_type']) ? self::TYPE_TCP : strtolower($config['server_type']);
+        $socketType = strtolower($config['server_type']);
         $this->config['server_type'] = $socketType;
+        $server_work_mode = $config['work_mode'];
         switch($socketType) {
             case self::TYPE_TCP:
-                $this->serv = new \swoole_server($config['host'], $config['port'], $config['work_mode'], SWOOLE_SOCK_TCP);
+                $this->serv = new \swoole_server($config['host'], $config['port'], $server_work_mode, SWOOLE_SOCK_TCP);
                 break;
             case self::TYPE_UDP:
-                $this->serv = new \swoole_server($config['host'], $config['port'], $config['work_mode'], SWOOLE_SOCK_UDP);
+                $this->serv = new \swoole_server($config['host'], $config['port'], $server_work_mode, SWOOLE_SOCK_UDP);
                 break;
             case self::TYPE_HTTP:
-                $this->serv = new \swoole_http_server($config['host'], $config['port'], $config['work_mode']);
+                $this->serv = new \swoole_http_server($config['host'], $config['port'], $server_work_mode);
                 break;
             case self::TYPE_WEBSOCKET:
-                $this->serv = new \swoole_websocket_server($config['host'], $config['port'], $config['work_mode']);
+                $this->serv = new \swoole_websocket_server($config['host'], $config['port'], $server_work_mode);
                 break;
 
         }
 
-        if(!empty($config['addlisten']) && $socketType != self::TYPE_UDP && SWOOLE_PROCESS == $config['work_mode']) {
+        if(!empty($config['addlisten']) && $socketType != self::TYPE_UDP && SWOOLE_PROCESS == $server_work_mode) {
             $this->serv->addlistener($config['addlisten']['ip'], $config['addlisten']['port'], SWOOLE_SOCK_UDP);
         }
 
