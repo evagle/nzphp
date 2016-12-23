@@ -127,6 +127,18 @@ class ActiveRecord
         return (new static())->findByIds($ids, $assoc, $columns);
     }
 
+    /**
+     * @param array $fields
+     * @param bool $assoc
+     * @param string $columns
+     * @return mixed
+     */
+    public static function findByFields(array $fields, $assoc = false, $columns = "*")
+    {
+        self::_initiate();
+        return (new static())->findByCondition($fields, $assoc, $columns);
+    }
+
     public static function all($assoc = false, $columns = "*")
     {
         self::_initiate();
@@ -204,14 +216,28 @@ class ActiveRecord
         return $connection->find($this->table, "1", null, $columns, $this->orderBy, 0, $className);
     }
 
-    public function findByFields($fields, $assoc = false, $columns = "*")
+    public function findByCondition($fields, $assoc = false, $columns = "*")
     {
+        if (empty($fields)) {
+            throw new \Exception('query fields is empty');
+        }
         $connection = $this->getConnection();
         $conditions = [];
         foreach ($fields as $k => $v) {
-            $conditions = "`{$k}` = " . $this->wrapColumnData($k, $v);
+            $conditions[] = "`{$k}` = " . $this->wrapColumnData($k, $v);
         }
         $where = implode(" and ", $conditions);
+        ZLog::info('debug', [$fields, $where]);
+        $className = $assoc ? "" : $this->className;
+        return $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+    }
+
+    public function findWhere($where, $assoc = false, $columns = "*")
+    {
+        if (empty($where)) {
+            throw new \Exception('where condition is empty!');
+        }
+        $connection = $this->getConnection();
         $className = $assoc ? "" : $this->className;
         return $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
     }

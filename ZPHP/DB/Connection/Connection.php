@@ -79,12 +79,11 @@ class Connection
         } else {
             $options = $this->config['options'];
         }
-
-        return new \PDO($this->getDsn($this->config), $this->config['username'], $this->config['password'], array(
+        return new \PDO($this->getDsn($this->config), $this->config['username'], $this->config['password'],
+            array(
                 \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES '{$this->config['charset']}';",
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                $options
-            ));
+            ) + $options);
     }
 
     /**
@@ -170,16 +169,20 @@ class Connection
         $this->pdo = $pdo;
     }
 
-    protected function begin()
+    protected function begin($table, $func)
     {
         $this->startTime = microtime(true);
+        $debug = ZConfig::get('debug', 0);
+        if ($debug) {
+            ZLog::info('pdo_sql', ["start", $func, $table, $this->lastSql]);
+        }
     }
 
     protected function end($table, $func)
     {
         $debug = ZConfig::get('debug', 0);
         if ($debug) {
-            ZLog::info('pdo_sql', [$func, $table, microtime(true) - $this->startTime, $this->lastSql]);
+            ZLog::info('pdo_sql', ["end", $func, $table, microtime(true) - $this->startTime, $this->lastSql]);
         }
     }
 
@@ -210,14 +213,14 @@ class Connection
         }
         $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
-        ZLog::info('pdo_sql', ["find", $table, $class, $this->lastSql]);
+        $this->begin($table, "find");
         $statement->execute($input_params);
         if ($class) {
             $statement->setFetchMode(\PDO::FETCH_CLASS, $class);
         } else {
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
         }
-        $this->begin();
+
         $result = $statement->fetchAll();
         $this->end($table, "find");
         return $result;
@@ -233,15 +236,14 @@ class Connection
         $strValues = ':' . implode(', :', $fields);
 
         $query = "INSERT INTO `{$this->dbName}`.`{$table}` ({$strFields}) VALUES ({$strValues})";
+        $this->lastSql = $query;
+        $this->begin($table, "insert");
 
         $statement = $this->pdo->prepare($query);
-        $this->lastSql = $query;
         $params = array();
-
         foreach ($fields as $field) {
             $params[$field] = $model->$field;
         }
-        $this->begin();
         $statement->execute($params);
         $this->end($table, "insert");
         return $this->pdo->lastInsertId();
@@ -263,10 +265,12 @@ class Connection
         }
 
         $query = "INSERT INTO `{$this->dbName}`.`{$table}` ({$strFields}) VALUES " . implode(',', $items);
-        $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
-        $this->begin();
+        $this->begin($table, "batchInsert");
+
+        $statement = $this->pdo->prepare($query);
         $statement->execute($params);
+
         $this->end($table, "batchInsert");
         return $statement->rowCount();
     }
@@ -282,11 +286,12 @@ class Connection
 
         $strUpdateFields = implode(',', $updateFields);
         $query = "UPDATE `{$this->dbName}`.`{$table}` SET {$strUpdateFields} WHERE {$where}";
-        $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
-        $this->begin();
+        $this->begin($table, "update");
+        $statement = $this->pdo->prepare($query);
+
         $statement->execute($params);
-        $this->end($table, "batchInsert");
+        $this->end($table, "update");
         return $statement->rowCount();
     }
 
@@ -296,14 +301,15 @@ class Connection
         $strValues = ':' . implode(', :', $fields);
 
         $query = "REPLACE INTO `{$this->dbName}`.`{$table}` ({$strFields}) VALUES ({$strValues})";
-        $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
-        $params = array();
+        $this->begin($table, "replace");
 
+        $params = array();
         foreach ($fields as $field) {
             $params[$field] = $model->$field;
         }
-        $this->begin();
+
+        $statement = $this->pdo->prepare($query);
         $statement->execute($params);
         $this->end($table, "replace");
         return $this->pdo->lastInsertId();
@@ -324,11 +330,10 @@ class Connection
         }
 
         $query = "REPLACE INTO `{$this->dbName}`.`{$table}` ({$strFields}) VALUES " . implode(',', $items);
+        $this->lastSql = $query;
+        $this->begin($table, "batchReplace");
 
         $statement = $this->pdo->prepare($query);
-        $this->lastSql = $query;
-
-        $this->begin();
         $statement->execute($params);
         $this->end($table, "batchReplace");
         return $this->pdo->lastInsertId();
@@ -342,8 +347,9 @@ class Connection
 
         $query = "DELETE FROM `{$this->dbName}`.`{$table}` WHERE {$where}";
         $this->lastSql = $query;
+        $this->begin($table, "delete");
+
         $statement = $this->pdo->prepare($query);
-        $this->begin();
         $statement->execute();
         $this->end($table, "delete");
         return $statement->rowCount();
@@ -362,8 +368,8 @@ class Connection
         $query = "SELECT count({$primary_key}) as count FROM `{$this->dbName}`.`{$table}` WHERE {$where}";
         $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
+        $this->begin($table, "rowsCount");
 
-        $this->begin();
         $statement->execute();
         $result = $statement->fetch();
         $this->end($table, "rowsCount");
@@ -374,12 +380,13 @@ class Connection
     {
         $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
+        $this->begin("rawquery", "executeQuery");
+
         $statement->execute();
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
-        $this->begin();
         $result = $statement->fetchAll();
-        $this->end($table, "rowsCount");
+        $this->end("rawquery", "rowsCount");
         return $result;
     }
 
