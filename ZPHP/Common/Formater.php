@@ -53,6 +53,16 @@ class Formater
 
     public static function exception(\Exception $exception, $trace = true)
     {
+        return self::exceptionOrError($exception, $trace);
+    }
+
+    public static function error(\Error $error, $trace = true)
+    {
+        return self::exceptionOrError($error, $trace);
+    }
+
+    protected static function exceptionOrError($exception, $trace = true)
+    {
         $exceptionHash = array(
             'className' => 'Exception',
             'message' => $exception->getMessage(),
@@ -93,5 +103,7 @@ class Formater
 
         return $exceptionHash;
     }
+
+
 
 }

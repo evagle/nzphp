@@ -24,7 +24,7 @@ class ZLog
      */
     public static function getFileLogger($logFileName)
     {
-        if (!self::$fileLoggers[$logFileName]) {
+        if (empty(self::$fileLoggers[$logFileName])) {
             self::$fileLoggers[$logFileName] = new Logger('NZPHP_File_Logger');
             $date = \date("Ymd");
             $logPath = ZConfig::getField('project', 'log_path', '');

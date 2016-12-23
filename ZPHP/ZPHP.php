@@ -5,7 +5,6 @@
  * 初始化框架相关信息
  */
 namespace ZPHP;
-use ZPHP\Common\ZLog;
 use ZPHP\Core\AutoLoader;
 use ZPHP\Common\ZPaths;
 use ZPHP\Protocol\Response;
@@ -20,12 +19,12 @@ class ZPHP
      * @var string
      */
     private static $rootPath;
+
     /**
      * 配置目录
      * @var string
      */
     private static $configPath = 'default';
-//    private static $zPath;
 
     public static function getRootPath()
     {

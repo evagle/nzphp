@@ -73,7 +73,7 @@ class ZConfig
     {
         $result = isset(self::$config[$key][$field]) ? self::$config[$key][$field] : $default;
         if ($throw && is_null($result)) {
-            throw new \Exception("{key} config empty");
+            throw new \Exception("Cannot find config: key={$key} field={$field}.");
         }
         return $result;
     }

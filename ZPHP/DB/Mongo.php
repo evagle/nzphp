@@ -1,6 +1,6 @@
 <?php
 
-namespace ZPHP\Db;
+namespace ZPHP\DB;
 
 class Mongo
 {
