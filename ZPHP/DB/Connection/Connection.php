@@ -386,7 +386,7 @@ class Connection
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
         $result = $statement->fetchAll();
-        $this->end("rawquery", "rowsCount");
+        $this->end("rawquery", "executeQuery");
         return $result;
     }
 
