@@ -49,11 +49,6 @@ class Route
             return false;
         }
 
-        
-
-        /*if(isset($route['ext'])) {
-            $pathinfo = str_replace($route['ext'], '', $pathinfo);
-        }*/
         $pathinfo = explode('.', $pathinfo);
         $pathinfo = $pathinfo[0];
 
@@ -74,6 +69,7 @@ class Route
 
         foreach ($route['dynamic'] as $regex => $rule) {
             if (!preg_match($regex, $pathinfo, $matches)) {
+
                 continue;
             }
             if (!empty($matches)) {

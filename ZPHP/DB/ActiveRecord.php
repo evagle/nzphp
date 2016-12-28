@@ -9,7 +9,6 @@
 namespace ZPHP\DB;
 
 
-use Illuminate\Contracts\Logging\Log;
 use ZPHP\Common\ZLog;
 use ZPHP\Core\ZConfig;
 use ZPHP\DB\Connection\ConnectionPool;
@@ -48,9 +47,9 @@ class ActiveRecord
     private static $tableColumnMetas;
 
     /**
-     * store classes names which had constructed at least once
+     * store a instance for each class
      */
-    private static $inited;
+    private static $staticInstancesPool;
 
     /**
      * record data
@@ -71,12 +70,51 @@ class ActiveRecord
 
     protected $cacheType;
 
+    /**
+     * @var array callbacks called after data fetched form db
+     * [
+     *  field1 => callback name,
+     *  field2 => callback name,
+     * ]
+     */
+    protected $fetchHooks;
+
+    /**
+     * @var array callbacks called before save data to db
+     * [
+     *  field1 => callback name,
+     *  field2 => callback name,
+     * ]
+     */
+    protected $saveHooks;
+
+
     public function __construct(array $attributes = [])
     {
         $this->className = static::class;
-        if (!isset(self::$inited[$this->className])) {
+        if (!isset(self::$staticInstancesPool[$this->className])) {
             $this->initConnection();
         }
+        if ($this->fetchHooks) {
+            foreach ($this->fetchHooks as $field => $func) {
+                if (property_exists($this, $field)) {
+                    $this->$field = call_user_func($func, $this->$field);
+                }
+            }
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getStaticInstance()
+    {
+        $className = static::class;
+        if (!self::$staticInstancesPool[$className]) {
+            $instance = new $className;
+            self::$staticInstancesPool[$className] = $instance;
+        }
+        return self::$staticInstancesPool[$className];
     }
 
     protected function initConnection()
@@ -89,19 +127,6 @@ class ActiveRecord
         if (empty(self::$tableColumnMetas[$this->table])) {
             self::$tableColumnMetas[$this->table] = $connection->getTableColumns($this->table);
         }
-
-        self::$inited[$this->className] = true;
-    }
-
-    /**
-     * init connection when class first called
-     */
-    protected static function _initiate()
-    {
-        $className = static::class;
-        if (!isset(self::$inited[$className])) {
-            new $className;
-        }
     }
 
     /**
@@ -112,8 +137,7 @@ class ActiveRecord
      */
     public static function find($id, $assoc = false, $columns = "*")
     {
-        self::_initiate();
-        $results = (new static())->findByIds($id, $assoc, $columns);
+        $results = self::getStaticInstance()->findByIds($id, $assoc, $columns);
         if (count($results) > 0) {
             return $results[0];
         } else {
@@ -123,32 +147,28 @@ class ActiveRecord
 
     public static function findMany(array $ids, $assoc = false, $columns = "*")
     {
-        self::_initiate();
-        return (new static())->findByIds($ids, $assoc, $columns);
+        return self::getStaticInstance()->findByIds($ids, $assoc, $columns);
     }
 
     /**
-     * @param array $fields
+     * @param array $fields: ["a" => 1, "b" =>2]
      * @param bool $assoc
      * @param string $columns
      * @return mixed
      */
     public static function findByFields(array $fields, $assoc = false, $columns = "*")
     {
-        self::_initiate();
-        return (new static())->findByCondition($fields, $assoc, $columns);
+        return self::getStaticInstance()->findByCondition($fields, $assoc, $columns);
     }
 
     public static function all($assoc = false, $columns = "*")
     {
-        self::_initiate();
-        return (new static())->findAll($assoc, $columns);
+        return self::getStaticInstance()->findAll($assoc, $columns);
     }
 
     public static function getColumnNames()
     {
-        self::_initiate();
-        return (new static())->_getColumnMetas();
+        return self::getStaticInstance()->_getColumnMetas();
     }
 
     public static function rowsCount($where = "1")
@@ -227,7 +247,6 @@ class ActiveRecord
             $conditions[] = "`{$k}` = " . $this->wrapColumnData($k, $v);
         }
         $where = implode(" and ", $conditions);
-        ZLog::info('debug', [$fields, $where]);
         $className = $assoc ? "" : $this->className;
         return $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
     }
@@ -254,7 +273,7 @@ class ActiveRecord
         $params = array();
         $columns = array_keys($this->_getColumnMetas());
         foreach ($columns as $field) {
-            $params[$field] = $this->$field;
+            $params[$field] = $this->getValueForDb($field);
         }
         $key = $this->primary_key;
         $where = "`{$this->primary_key}` = " . $this->wrapColumnData($this->primary_key, $this->$key);
@@ -311,5 +330,13 @@ class ActiveRecord
     {
         $connection = $this->getConnection();
         $connection->flush($this->table);
+    }
+
+    public function getValueForDb($field)
+    {
+        if ($this->saveHooks && isset($this->saveHooks[$field])) {
+            return call_user_func($this->saveHooks[$field], $this->$field);
+        }
+        return $this->$field;
     }
 }

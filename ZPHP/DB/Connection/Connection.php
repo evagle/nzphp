@@ -242,7 +242,7 @@ class Connection
         $statement = $this->pdo->prepare($query);
         $params = array();
         foreach ($fields as $field) {
-            $params[$field] = $model->$field;
+            $params[$field] = $model->getValueForDb($field);
         }
         $statement->execute($params);
         $this->end($table, "insert");
@@ -260,7 +260,7 @@ class Connection
             $items[] = '(:' . implode($index . ', :', $fields) . $index . ')';
 
             foreach ($fields as $field) {
-                $params[$field.$index] = $model->$field;
+                $params[$field.$index] = $model->getValueForDb($field);
             }
         }
 
@@ -306,7 +306,7 @@ class Connection
 
         $params = array();
         foreach ($fields as $field) {
-            $params[$field] = $model->$field;
+            $params[$field] = $model->getValueForDb($field);
         }
 
         $statement = $this->pdo->prepare($query);
@@ -325,7 +325,7 @@ class Connection
             $items[] = '(:' . implode($index . ', :', $fields) . $index . ')';
 
             foreach ($fields as $field) {
-                $params[$field.$index] = $model->$field;
+                $params[$field.$index] = $model->getValueForDb($field);
             }
         }
 
