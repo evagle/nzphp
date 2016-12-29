@@ -9,9 +9,9 @@
 namespace ZPHP\DB;
 
 
-use ZPHP\Common\ZLog;
 use ZPHP\Core\ZConfig;
 use ZPHP\DB\Connection\ConnectionPool;
+use ZPHP\ZPHP;
 
 class ActiveRecord
 {
@@ -52,11 +52,6 @@ class ActiveRecord
     private static $staticInstancesPool;
 
     /**
-     * record data
-     */
-    protected $data;
-
-    /**
      * connection name set in config
      */
     protected $connectionName;
@@ -68,7 +63,12 @@ class ActiveRecord
 
     protected $useCache;
 
-    protected $cacheType;
+    /**
+     * use  ZConfig::getField('cache', $cacheConfigName) to get config cache
+     */
+    protected $cacheConfigName;
+
+    private $baseCacheKey;
 
     /**
      * @var array callbacks called after data fetched form db
@@ -87,7 +87,6 @@ class ActiveRecord
      * ]
      */
     protected $saveHooks;
-
 
     public function __construct(array $attributes = [])
     {
@@ -214,7 +213,12 @@ class ActiveRecord
 
     public function findByIds($ids, $assoc = false, $columns = "*")
     {
-        $connection = $this->getConnection();
+        $cacheKey = $this->getCacheKey($ids);
+        $data = $this->getFromCache($cacheKey);
+        if ($data) {
+            return $data;
+        }
+
         if (is_array($ids)) {
             foreach ($ids as &$id) {
                 $id = $this->wrapColumnData($this->primary_key, $id);
@@ -226,14 +230,26 @@ class ActiveRecord
             $limit = 1;
         }
         $className = $assoc ? "" : $this->className;
-        return $connection->find($this->table, $where, null, $columns,  $this->orderBy, $limit, $className);
+        $connection = $this->getConnection();
+        $result = $connection->find($this->table, $where, null, $columns,  $this->orderBy, $limit, $className);
+
+        $this->addToCache($cacheKey, $result);
+        return $result;
     }
 
     public function findAll($assoc = false, $columns = "*")
     {
-        $connection = $this->getConnection();
+        $cacheKey = $this->getCacheKey("all");
+        $data = $this->getFromCache($cacheKey);
+        if ($data) {
+            return $data;
+        }
         $className = $assoc ? "" : $this->className;
-        return $connection->find($this->table, "1", null, $columns, $this->orderBy, 0, $className);
+        $connection = $this->getConnection();
+        $result = $connection->find($this->table, "1", null, $columns, $this->orderBy, 0, $className);
+
+        $this->addToCache($cacheKey, $result);
+        return $result;
     }
 
     public function findByCondition($fields, $assoc = false, $columns = "*")
@@ -241,14 +257,23 @@ class ActiveRecord
         if (empty($fields)) {
             throw new \Exception('query fields is empty');
         }
-        $connection = $this->getConnection();
+        $cacheKey = $this->getCacheKey("all");
+        $data = $this->getFromCache($cacheKey);
+        if ($data) {
+            return $data;
+        }
+
         $conditions = [];
         foreach ($fields as $k => $v) {
             $conditions[] = "`{$k}` = " . $this->wrapColumnData($k, $v);
         }
         $where = implode(" and ", $conditions);
         $className = $assoc ? "" : $this->className;
-        return $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+        $connection = $this->getConnection();
+        $result = $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+
+        $this->addToCache($cacheKey, $result);
+        return $result;
     }
 
     public function findWhere($where, $assoc = false, $columns = "*")
@@ -256,9 +281,18 @@ class ActiveRecord
         if (empty($where)) {
             throw new \Exception('where condition is empty!');
         }
+        $cacheKey = $this->getCacheKey($where);
+        $data = $this->getFromCache($cacheKey);
+        if ($data) {
+            return $data;
+        }
+
         $connection = $this->getConnection();
         $className = $assoc ? "" : $this->className;
-        return $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+        $result = $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+
+        $this->addToCache($cacheKey, $result);
+        return $result;
     }
 
     public function save()
@@ -339,4 +373,54 @@ class ActiveRecord
         }
         return $this->$field;
     }
+
+    /**
+     * @return \ZPHP\Cache\ICache
+     */
+    public function getCache()
+    {
+        $config = ZConfig::getField('cache', $this->cacheConfigName, null, true);
+        $cacheInstance = \ZPHP\Cache\Factory::getInstance($config['adapter'], $config);
+        return $cacheInstance;
+    }
+
+    public function getCacheKey($suffix = false)
+    {
+        if (empty($this->baseCacheKey)) {
+            $projectKey = ZConfig::get('project_name', '');
+            $this->baseCacheKey = $projectKey.str_replace('\\', '_', $this->className);
+        }
+
+        $cacheKey = $this->baseCacheKey;
+        if($suffix) {
+            if (\is_array($suffix)) {
+                $cacheKey .= json_encode($suffix);
+            } else {
+                $cacheKey .= $suffix;
+            }
+        }
+        if (strlen($cacheKey) > 48) {
+            $cacheKey = md5($cacheKey);
+        }
+        return $cacheKey;
+    }
+
+    public function addToCache($cacheKey, $data, $timeout = 0)
+    {
+        if (!$this->useCache) {
+            return false;
+        }
+        $cacheInstance = $this->getCache();
+        return $cacheInstance->add($cacheKey, $data, $timeout);
+    }
+
+    public function getFromCache($cacheKey)
+    {
+        if (!$this->useCache) {
+            return false;
+        }
+        $cacheInstance = $this->getCache();
+        return $cacheInstance->get($cacheKey);
+    }
+
 }
