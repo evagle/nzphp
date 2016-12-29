@@ -37,7 +37,7 @@ class SimpleLRUCache
         }
 
         $this->detachNode($node);
-        $this->addToHead($this->head, $node);
+        $this->attachNode($this->head, $node);
         return $node->getData();
     }
 
@@ -49,12 +49,12 @@ class SimpleLRUCache
         if (isset($this->hashmap[$key]) && !empty($this->hashmap[$key])) {
             $node = $this->hashmap[$key];
             $this->detachNode($node);
-            $this->addToHead($this->head, $node);
+            $this->attachNode($this->head, $node);
             $node->setData($data);
         } else {
             $node = new Node($key, $data);
             $this->hashmap[$key] = $node;
-            $this->addToHead($this->head, $node);
+            $this->attachNode($this->head, $node);
             if (count($this->hashmap) > $this->capacity) {
                 $nodeToRemove = $this->tail->getPrevious();
                 $this->detachNode($nodeToRemove);
@@ -85,7 +85,7 @@ class SimpleLRUCache
         $this->hashmap = array();
     }
 
-    private function addToHead(Node $head, Node $node)
+    private function attachNode(Node $head, Node $node)
     {
         $node->setPrevious($head);
         $node->setNext($head->getNext());
