@@ -45,19 +45,28 @@ class ZLog
         return self::$fileLoggers[$logFileName];
     }
 
+    protected static function format($data)
+    {
+        if (is_array($data)) {
+            $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $data));
+        } else if (is_object($data)) {
+            $message = ZLog::toJson($data);
+        } else {
+            $message = $data . "";
+        }
+        return $message;
+    }
+
     public static function debug($logFileName, $params = array())
     {
-        if (is_array($params)) {
-            $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
-        } else {
-            $message = $params . "";
-        }
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addDebug($message);
     }
 
+
     public static function info($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addInfo($message);
     }
 
@@ -69,7 +78,7 @@ class ZLog
      */
     public static function warning($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addWarning($message);
     }
 
@@ -78,7 +87,7 @@ class ZLog
      */
     public static function error($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addError($message);
     }
 
@@ -89,7 +98,7 @@ class ZLog
      */
     public static function critical($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addCritical($message);
     }
 
@@ -101,7 +110,7 @@ class ZLog
      */
     public static function alert($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addAlert($message);
     }
 
@@ -110,16 +119,12 @@ class ZLog
      */
     public static function emergency($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        $message = self::format($params);
         self::getFileLogger($logFileName)->addEmergency($message);
     }
 
     public static function toJson($data)
     {
-        if (is_string($data)) {
-            return $data;
-        } else {
-		    return json_encode($data,  JSON_UNESCAPED_UNICODE);
-        }
+        return json_encode($data,  JSON_UNESCAPED_UNICODE);
 	}
 }

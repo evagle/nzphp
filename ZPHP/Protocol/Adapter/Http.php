@@ -44,7 +44,7 @@ class Http implements IProtocol
             }
         }
 
-        Request::init($ctrlName, $methodName, $data, ZConfig::get( 'view_mode', 'Php'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::get('view_mode', 'Php'));
         return true;
     }
 }

@@ -40,7 +40,6 @@ class Response
                 }
             }
         }
-
         $view = ZView::getInstance($viewMode);
         if ('Php' === $viewMode) {
             $_tpl_file = Request::getTplFile();
@@ -48,7 +47,6 @@ class Response
                 $_tpl_file = $model['_tpl_file'];
                 unset($model['_tpl_file']);
             }
-
             if(empty($_tpl_file)) {
                 throw new \Exception("tpl file empty");
             }

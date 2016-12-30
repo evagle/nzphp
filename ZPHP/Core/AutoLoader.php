@@ -20,13 +20,16 @@ class AutoLoader
         return self::$searchPaths;
     }
 
+    /**
+     * Do no throw any exception in autoLoader. The exception you throw will not be caught by exception handler, which
+     * can cause confuse.
+     */
     final public static function autoLoader($class)
     {
         if(isset(self::$classPath[$class])) {
             return;
         }
         $baseClasspath = \str_replace('\\', DS, $class) . '.php';
-
         foreach (self::$searchPaths as $searchPath) {
             $classpath = $searchPath . DS . $baseClasspath;
             if (file_exists($classpath)) {
@@ -35,6 +38,5 @@ class AutoLoader
                 return;
             }
         }
-        throw new \Exception("No class: ".$class." found.  Search paths: " . json_encode(self::$searchPaths));
     }
 }
