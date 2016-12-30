@@ -27,7 +27,7 @@ class ZLog
         if (empty(self::$fileLoggers[$logFileName])) {
             self::$fileLoggers[$logFileName] = new Logger('NZPHP_File_Logger');
             $date = \date("Ymd");
-            $logPath = ZConfig::getField('project', 'log_path', '');
+            $logPath = ZConfig::getField('Paths', 'log_path');
             if(empty($logPath)) {
                 $dir = ZPHP::getRootPath() . DS . 'log' . DS . $date;
             } else {
@@ -36,7 +36,7 @@ class ZLog
             Dir::make($dir);
             $logFile = $dir . \DS . $logFileName . '.log';
             $formatter = new LineFormatter(null, null, false, true);
-            $debug = ZConfig::get('debug');
+            $debug = ZConfig::get('debug', 0);
             $logLevel = $debug ? Logger::DEBUG : Logger::INFO;
             $handler = new StreamHandler($logFile, $logLevel);
             $handler->setFormatter($formatter);
@@ -47,7 +47,11 @@ class ZLog
 
     public static function debug($logFileName, $params = array())
     {
-        $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        if (is_array($params)) {
+            $message = implode(self::SEPARATOR, array_map('ZPHP\Common\ZLog::toJson', $params));
+        } else {
+            $message = $params . "";
+        }
         self::getFileLogger($logFileName)->addDebug($message);
     }
 

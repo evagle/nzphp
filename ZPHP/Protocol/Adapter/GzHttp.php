@@ -6,6 +6,7 @@
 
 
 namespace ZPHP\Protocol\Adapter;
+
 use ZPHP\Core\ZConfig;
 use ZPHP\Protocol\IProtocol;
 use ZPHP\Common\Route as ZRoute;
@@ -20,10 +21,10 @@ class GzHttp implements IProtocol
      */
     public function parse($data)
     {
-        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
-        $apn = ZConfig::getField('project', 'ctrl_name', 'a');
-        $mpn = ZConfig::getField('project', 'method_name', 'm');
+        $ctrlName = ZConfig::get('default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::get('default_method_name', 'main');
+        $apn = ZConfig::get('ctrl_name', 'a');
+        $mpn = ZConfig::get('method_name', 'm');
         if (isset($data[$apn])) {
             $ctrlName = \str_replace('/', '\\', $data[$apn]);
         }
@@ -45,20 +46,20 @@ class GzHttp implements IProtocol
             }
         }
 
-        if(!empty($_SERVER['PATH_INFO']) && '/' !== $_SERVER['PATH_INFO']) {
+        if (!empty($_SERVER['PATH_INFO']) && '/' !== $_SERVER['PATH_INFO']) {
             //swoole_http模式 需要在onRequest里，设置一下 $_SERVER['PATH_INFO'] = $request->server['path_info']
             $routeMap = ZRoute::match(ZConfig::get('route', false), $_SERVER['PATH_INFO']);
-            if(is_array($routeMap)) {
+            if (is_array($routeMap)) {
                 $ctrlName = \str_replace('/', '\\', $routeMap[0]);
                 $methodName = $routeMap[1];
-                if(!empty($routeMap[2]) && is_array($routeMap[2])) {
+                if (!empty($routeMap[2]) && is_array($routeMap[2])) {
                     //参数优先
                     $data = $data + $routeMap[2];
                 }
             }
         }
 
-        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'Php'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::get('view_mode', 'Php'));
         return true;
     }
 }

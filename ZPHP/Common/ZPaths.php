@@ -18,6 +18,9 @@ class ZPaths
     ];
     public static function getPath($name)
     {
+        if (!isset(self::$paths[$name])) {
+            throw new \Exception("ZPath: path $name no set");
+        }
         return self::$paths[$name];
     }
 

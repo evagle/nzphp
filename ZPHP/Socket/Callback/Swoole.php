@@ -26,8 +26,8 @@ abstract class Swoole implements ISwooleCallback
             ' server running ' .
             ZConfig::getField('socket', 'server_type', 'tcp') . '://' . ZConfig::getField('socket', 'host') . ':' . ZConfig::getField('socket', 'port')
             . " time:".date('Y-m-d H:i:s')."  master:" . $server->master_pid);
-        if (!empty(ZConfig::getField('project', 'pid_path'))) {
-            file_put_contents(ZConfig::getField('project', 'pid_path') . DS . ZConfig::get('project_name') . '_master.pid', $server->master_pid);
+        if (!empty(ZConfig::get( 'pid_path'))) {
+            file_put_contents(ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_master.pid', $server->master_pid);
         }
     }
 
@@ -36,12 +36,12 @@ abstract class Swoole implements ISwooleCallback
      */
     public function onShutDown(\swoole_server $server)
     {
-        if (!empty(ZConfig::getField('project', 'pid_path'))) {
-            $filename = ZConfig::getField('project', 'pid_path') . DS . ZConfig::get('project_name') . '_master.pid';
+        if (!empty(ZConfig::get( 'pid_path'))) {
+            $filename = ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_master.pid';
             if (is_file($filename)) {
                 unlink($filename);
             }
-            $filename = ZConfig::getField('project', 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
+            $filename = ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
             if (is_file($filename)) {
                 unlink($filename);
             }
@@ -57,8 +57,8 @@ abstract class Swoole implements ISwooleCallback
     {
         swoole_set_process_name(ZConfig::get('project_name') .
             ' server manager:' . $server->manager_pid);
-        if (!empty(ZConfig::getField('project', 'pid_path'))) {
-            file_put_contents(ZConfig::getField('project', 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid', $server->manager_pid);
+        if (!empty(ZConfig::get( 'pid_path'))) {
+            file_put_contents(ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid', $server->manager_pid);
         }
     }
 
@@ -69,8 +69,8 @@ abstract class Swoole implements ISwooleCallback
      */
     public function onManagerStop(\swoole_server $server)
     {
-        if (!empty(ZConfig::getField('project', 'pid_path'))) {
-            $filename = ZConfig::getField('project', 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
+        if (!empty(ZConfig::get( 'pid_path'))) {
+            $filename = ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
             if (is_file($filename)) {
                 unlink($filename);
             }

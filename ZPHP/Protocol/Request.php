@@ -36,12 +36,12 @@ class Request
         if($ctrl) {
             self::$_ctrl = $ctrl;
         } else {
-            self::$_ctrl = ZConfig::getField('project', 'default_ctrl_name', self::$_ctrl);
+            self::$_ctrl = ZConfig::get( 'default_ctrl_name', self::$_ctrl);
         }
         if($method) {
             self::$_method = $method;
         }else {
-            self::$_method = ZConfig::getField('project', 'default_method_name', self::$_method);
+            self::$_method = ZConfig::get( 'default_method_name', self::$_method);
         }
         self::$_params = $params;
         if($viewMode) {

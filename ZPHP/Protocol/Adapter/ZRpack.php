@@ -26,8 +26,8 @@ class ZRpack implements IProtocol
      */
     public function parse($_data)
     {
-        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
+        $ctrlName = ZConfig::get( 'default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::get( 'default_method_name', 'main');
         if (empty($this->_cache)) {
             $this->_cache = ZCache::getInstance('Php');
         }
@@ -68,7 +68,7 @@ class ZRpack implements IProtocol
                 $data = $data + $routeMap[2];
             }
         }
-        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'Zpack'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::get( 'view_mode', 'Zpack'));
         return true;
     }
 }

@@ -17,8 +17,8 @@ class Json implements IProtocol
 {
     public function parse($_data)
     {
-        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
+        $ctrlName = ZConfig::get('default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::get('default_method_name', 'main');
         $data = [];
         if (!empty($_data)) {
             if (is_array($_data)) {
@@ -27,15 +27,15 @@ class Json implements IProtocol
                 $data = \json_decode($_data, true);
             }
         }
-        $apn = ZConfig::getField('project', 'ctrl_name', 'a');
-        $mpn = ZConfig::getField('project', 'method_name', 'm');
+        $apn = ZConfig::get('ctrl_name', 'a');
+        $mpn = ZConfig::get('method_name', 'm');
         if (isset($data[$apn])) {
             $ctrlName = \str_replace('/', '\\', $data[$apn]);
         }
         if (isset($data[$mpn])) {
             $methodName = $data[$mpn];
         }
-        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'Json'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::get('view_mode', 'Json'));
         return true;
     }
 }

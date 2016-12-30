@@ -23,7 +23,7 @@ class Debug
 
     public static function start($key = 'ALL')
     {
-        if (!self::$xhprof && ZConfig::getField('project', 'xhprof', 0) && \function_exists('xhprof_enable')) {
+        if (!self::$xhprof && ZConfig::get( 'xhprof', 0) && \function_exists('xhprof_enable')) {
             require(ZPHP::getLibPath() . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_lib.php');
             require(ZPHP::getLibPath() . DS . 'xhprof_lib' . DS . 'utils' . DS . 'xhprof_runs.php');
             \xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
@@ -64,7 +64,7 @@ class Debug
      */
     private static function _log($msgType, $args)
     {
-        if (!ZConfig::getField('project', 'debug_mode', 0)) {
+        if (!ZConfig::get('debug', 0)) {
             return;
         }
 

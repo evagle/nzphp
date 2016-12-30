@@ -43,7 +43,7 @@ class Route
             }
         }catch (\Exception $e) {
             if(Request::isLongServer()) {
-                $result =  \call_user_func(ZConfig::getField('project', 'exception_handler', 'ZPHP\ZPHP::exceptionHandler'), $e);
+                $result =  \call_user_func(ZConfig::get( 'exception_handler', 'ZPHP\ZPHP::exceptionHandler'), $e);
                 if($class instanceof IController) {
                     $class->_after();
                 }

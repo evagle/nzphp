@@ -22,11 +22,17 @@ class Php extends Base
 
     public function display()
     {
-        $tplPath = ZPHP\Core\ZConfig::getField('project', 'views_path', ZPHP\ZPHP::getRootPath() . DS  . 'views' . DS . 'default'. DS);
-        $fileName = $tplPath . $this->tplFile;
+        $tplPath = ZPHP\Common\ZPaths::getPath('views_path');
+
+        if (empty($this->tplFile)) {
+            $fileName = $tplPath . ZPHP\Protocol\Request::getTplFile();
+        } else {
+            $fileName = $tplPath . $this->tplFile;
+        }
         if (!\is_file($fileName)) {
             throw new \Exception("no file {$fileName}");
         }
+
         if (!empty($this->model)) {
             \extract($this->model);
         }

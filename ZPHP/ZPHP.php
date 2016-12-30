@@ -5,6 +5,7 @@
  * 初始化框架相关信息
  */
 namespace ZPHP;
+
 use ZPHP\Core\AutoLoader;
 use ZPHP\Common\ZPaths;
 use ZPHP\Protocol\Response;
@@ -12,6 +13,7 @@ use ZPHP\View,
     ZPHP\Core\ZConfig,
     ZPHP\Common\Debug,
     ZPHP\Common\Formater;
+
 class ZPHP
 {
     /**
@@ -68,10 +70,10 @@ class ZPHP
     final public static function fatalHandler()
     {
         $error = \error_get_last();
-        if(empty($error)) {
+        if (empty($error)) {
             return;
         }
-        if(!in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR))) {
+        if (!in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR))) {
             return;
         }
         Response::status('200');
@@ -85,7 +87,7 @@ class ZPHP
      * @return \ZPHP\Server\IServer
      * @throws \Exception
      */
-    public static function run($rootPath, $run=true, $configPath=null)
+    public static function run($rootPath, $run = true, $configPath = null)
     {
         if (!defined('DS')) {
             define('DS', DIRECTORY_SEPARATOR);
@@ -111,10 +113,10 @@ class ZPHP
         $appPath = ZConfig::getField('paths', 'app_path', 'app');
         ZPaths::setPath('app_path', $rootPath . DS . $appPath);
 
-        $libPath = ZConfig::getField('paths', 'lib_path', $rootPath . DS .'lib');
+        $libPath = ZConfig::getField('paths', 'lib_path', $rootPath . DS . 'lib');
         ZPaths::setPath('lib_path', $libPath);
 
-        $viewsPath = ZConfig::getField('paths', 'views_path', $rootPath . DS .'views' . DS . "default");
+        $viewsPath = ZConfig::getField('paths', 'views_path', $rootPath . DS . 'views' . DS . "default");
         ZPaths::setPath('views_path', $viewsPath);
 
         $paths = ZConfig::get('paths', []);
@@ -136,19 +138,19 @@ class ZPHP
         }
 
         /// set exception handler
-        $eh = ZConfig::getField('project', 'exception_handler', __CLASS__ . '::exceptionHandler');
+        $eh = ZConfig::get('exception_handler', __CLASS__ . '::exceptionHandler');
         \set_exception_handler($eh);
-        \register_shutdown_function( ZConfig::getField('project', 'fatal_handler', __CLASS__ . '::fatalHandler') );
-        if(ZConfig::getField('project', 'error_handler')) {
-            \set_error_handler(ZConfig::getField('project', 'error_handler'));
+        \register_shutdown_function(ZConfig::get('fatal_handler', __CLASS__ . '::fatalHandler'));
+        if (ZConfig::get('error_handler')) {
+            \set_error_handler(ZConfig::get('error_handler'));
         }
 
         /// start server
         $serverMode = ZConfig::get('server_mode', 'Http');
         $service = Server\Factory::getInstance($serverMode);
-        if($run) {
+        if ($run) {
             $service->run();
-        }else{
+        } else {
             return $service;
         }
 

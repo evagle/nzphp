@@ -126,9 +126,9 @@ class Route
      */
     public static function makeUrl($ctrl, $method, $params = array())
     {
-        $appUrl = ZConfig::getField('project', 'app_host', "");
-        $ctrlName = ZConfig::getField('project', 'ctrl_name', 'a');
-        $methodName = ZConfig::getField('project', 'method_name', 'm');
+        $appUrl = ZConfig::get('app_host', "");
+        $ctrlName = ZConfig::get('ctrl_name', 'a');
+        $methodName = ZConfig::get('method_name', 'm');
         if (empty($appUrl)) {
             $appUrl = '/';
         } else {
@@ -155,7 +155,7 @@ class Route
                 unset($routes['cache']);
             }
             $ext = '';
-            if(!empty($routes['ext'])) {
+            if (!empty($routes['ext'])) {
                 $ext = $routes['ext'];
                 unset($routes['ext']);
             }
@@ -168,12 +168,12 @@ class Route
                         }
                         if ('static' == $type) {
                             if (empty($params)) {
-                                if('' == $path || '/'==$path) {
+                                if ('' == $path || '/' == $path) {
                                     $result = $appUrl . $path;
                                 } else {
-                                    $result = $appUrl . $path. $ext;
+                                    $result = $appUrl . $path . $ext;
                                 }
-                                
+
                             } else {
                                 $result = $appUrl . $path . $ext . '?' . http_build_query($params);
                             }
@@ -189,7 +189,7 @@ class Route
                                 }
                             }
                             if (empty($params)) {
-                                $result = $appUrl . $realPath. $ext;
+                                $result = $appUrl . $realPath . $ext;
                             } else {
                                 $result = $appUrl . $realPath . $ext . '?' . http_build_query($params);
                             }
@@ -212,6 +212,6 @@ class Route
 
     private static function getKey()
     {
-        return ZConfig::getField('project', 'project_name') . "_route_" . json_encode(func_get_args());
+        return ZConfig::get('project_name') . "_route_" . json_encode(func_get_args());
     }
 }

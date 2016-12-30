@@ -21,17 +21,17 @@ class Rpc implements IProtocol
      */
     public function parse($data)
     {
-        $ctrlName = ZConfig::getField('project', 'default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::getField('project', 'default_method_name', 'main');
-        $apn = ZConfig::getField('project', 'ctrl_name', 'a');
-        $mpn = ZConfig::getField('project', 'method_name', 'm');
+        $ctrlName = ZConfig::get( 'default_ctrl_name', 'main\\main');
+        $methodName = ZConfig::get( 'default_method_name', 'main');
+        $apn = ZConfig::get( 'ctrl_name', 'a');
+        $mpn = ZConfig::get( 'method_name', 'm');
         if (isset($data[$apn])) {
             $ctrlName = \str_replace('/', '\\', $data[$apn]);
         }
         if (isset($data[$mpn])) {
             $methodName = $data[$mpn];
         }
-        Request::init($ctrlName, $methodName, $data, ZConfig::getField('project', 'view_mode', 'Rpc'));
+        Request::init($ctrlName, $methodName, $data, ZConfig::get( 'view_mode', 'Rpc'));
         return true;
     }
 }

@@ -15,7 +15,7 @@ class Http implements IServer
 
     public function run()
     {
-        $protocol = Core\ZConfig::getField('project', 'protocol', 'Http');
+        $protocol = Core\ZConfig::get('protocol', 'Http');
         Protocol\Request::setServer(Protocol\Factory::getInstance($protocol));
         Protocol\Request::parse($_REQUEST);
         return Core\Route::route();

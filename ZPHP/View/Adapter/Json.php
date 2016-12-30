@@ -19,7 +19,7 @@ class Json extends Base
         $data = \json_encode($this->model, JSON_UNESCAPED_UNICODE);
         if (Request::isHttp()) {
             $params = Request::getParams();
-            $key = ZConfig::getField('project', 'jsonp', 'jsoncallback');
+            $key = ZConfig::get( 'jsonp', 'jsoncallback');
             if(isset($params[$key])) {
                 Response::header("Content-Type", 'application/x-javascript; charset=utf-8');
                 $data = $params[$key].'('.$data.')';
