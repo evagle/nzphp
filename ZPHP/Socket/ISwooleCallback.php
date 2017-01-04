@@ -19,7 +19,7 @@ interface ISwooleCallback
         $fd是连接的文件描述符，发送数据/关闭连接时需要此参数
         $from_id来自那个Reactor线程
 	 */
-    public function onConnect(\swoole_server $server, int $fd, int $from_id);
+    public function onConnect(\swoole_server $server, $fd, $from_id);
 
     /**
 	 * 当有数据到达时，回调此方法
@@ -28,7 +28,7 @@ interface ISwooleCallback
         $from_id，TCP连接所在的Reactor线程ID
         $data，收到的数据内容，可能是文本或者二进制内容
 	 */
-    public function onReceive(\swoole_server $server, int $fd, int $from_id, string $data);
+    public function onReceive(\swoole_server $server, $fd, $from_id, $data);
 
     /**
 	 * 当有client断开时，回调此方法
@@ -36,7 +36,7 @@ interface ISwooleCallback
         $fd，TCP客户端连接的文件描述符
         $from_id，TCP连接所在的Reactor线程ID
 	 */
-    public function onClose(\swoole_server $server, int $fd, int $from_id);
+    public function onClose(\swoole_server $server, $fd, $from_id);
 
     /**
 	 * 当socket服务关闭时，回调此方法

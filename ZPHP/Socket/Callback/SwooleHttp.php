@@ -10,12 +10,12 @@ use ZPHP\Protocol;
 abstract class SwooleHttp extends Swoole
 {
 
-    public function onReceive(\swoole_server $server, int $fd, int $from_id, string $data)
+    public function onReceive(\swoole_server $server, $fd, $from_id, $data)
     {
         throw new \Exception('http server must use onRequest');
     }
 
-    public function onWorkerStart(\swoole_server $server, int $workerId)
+    public function onWorkerStart(\swoole_server $server, $workerId)
     {
         parent::onWorkerStart($server, $workerId);
         Protocol\Request::setHttpServer(1);

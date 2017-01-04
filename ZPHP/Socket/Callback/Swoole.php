@@ -93,7 +93,7 @@ abstract class Swoole implements ISwooleCallback
         Protocol\Request::setSocket($server);
     }
 
-    public function onWorkerStop(\swoole_server $server, int $workerId)
+    public function onWorkerStop(\swoole_server $server, $workerId)
     {
     }
 
@@ -103,7 +103,7 @@ abstract class Swoole implements ISwooleCallback
      * @param int $workerPid 是异常进程的ID
      * @param int $errorCode 退出的状态码，范围是 1 ～255
      */
-    public function onWorkerError(\swoole_server $server, int $workerId, int $workerPid, int $errorCode)
+    public function onWorkerError(\swoole_server $server, $workerId, $workerPid, $errorCode)
     {
 
     }
@@ -113,13 +113,13 @@ abstract class Swoole implements ISwooleCallback
          $fd是连接的文件描述符，发送数据/关闭连接时需要此参数
          $from_id来自那个Reactor线程
      */
-    public function onConnect(\swoole_server $server, int $fd, int $from_id)
+    public function onConnect(\swoole_server $server, $fd,  $from_id)
     {
 
     }
 
 
-    public function doReceive(\swoole_server $server, int $fd, int $from_id, $data)
+    public function doReceive(\swoole_server $server, $fd, $from_id, $data)
     {
         Protocol\Request::setFd($fd);
         $this->onReceive($server, $fd, $from_id, $data);
@@ -131,7 +131,7 @@ abstract class Swoole implements ISwooleCallback
         $from_id，TCP连接所在的Reactor线程ID
         $data，收到的数据内容，可能是文本或者二进制内容
      */
-    abstract public function onReceive(\swoole_server $server, int $fd, int $from_id, string $data);
+    abstract public function onReceive(\swoole_server $server, $fd, $from_id, $data);
 
 
     /**
@@ -147,13 +147,13 @@ abstract class Swoole implements ISwooleCallback
         $reactor_id = ($clientInfo['server_socket'] << 16) + $clientInfo['port'];
 
      */
-    public function onPacket(\swoole_server $server, string $data, $clientInfo)
+    public function onPacket(\swoole_server $server, $data, $clientInfo)
     {
 
     }
 
 
-    public function onClose(\swoole_server $server, int $fd, int $from_id)
+    public function onClose(\swoole_server $server, $fd, $from_id)
     {
 
     }
@@ -165,7 +165,7 @@ abstract class Swoole implements ISwooleCallback
         $src_worker_id来自于哪个worker进程
         $data 是任务的内容
      */
-    public function onTask(\swoole_server $server, int $taskId, int $fromId, $data)
+    public function onTask(\swoole_server $server, $taskId, $fromId, $data)
     {
 
     }
@@ -175,7 +175,7 @@ abstract class Swoole implements ISwooleCallback
         $data是任务处理的结果内容
         task进程的onTask事件中没有调用finish方法或者return结果。worker进程不会触发onFinish
      */
-    public function onFinish(\swoole_server $server, int $taskId, $data)
+    public function onFinish(\swoole_server $server, $taskId, $data)
     {
 
     }
@@ -184,7 +184,7 @@ abstract class Swoole implements ISwooleCallback
         当工作进程收到由sendMessage发送的管道消息时会触发onPipeMessage事件。worker/task进程都可能会触发onPipeMessage事件。
         onPipeMessage在swoole-1.7.9以上版本可用
      */
-    public function onPipeMessage(\swoole_server $server, int $fromWorkerId, $data)
+    public function onPipeMessage(\swoole_server $server, $fromWorkerId, $data)
     {
 
     }
