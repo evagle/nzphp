@@ -20,11 +20,15 @@ class ZLog
 
     /**
      * @param $logFileName
-     * @return \Monolog\Logger
+     * @return Logger
+     * @throws \Exception
      */
     public static function getFileLogger($logFileName)
     {
         if (empty(self::$fileLoggers[$logFileName])) {
+            if (!is_string($logFileName)) {
+                throw new \Exception('log name must be string. name='. json_encode($logFileName));
+            }
             self::$fileLoggers[$logFileName] = new Logger('NZPHP_File_Logger');
             $date = \date("Ymd");
             $logPath = ZConfig::getField('Paths', 'log_path');

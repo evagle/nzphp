@@ -77,7 +77,7 @@ abstract class Swoole implements ISwooleCallback
         }
     }
 
-    public function onWorkerStart(\swoole_server $server, int $workerId)
+    public function onWorkerStart(\swoole_server $server, $workerId)
     {
         $workNum = ZConfig::getField('socket', 'worker_num');
         if ($workerId >= $workNum) {
