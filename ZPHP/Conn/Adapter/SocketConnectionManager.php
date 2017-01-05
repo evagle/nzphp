@@ -79,7 +79,8 @@ abstract class SocketConnectionManager implements IConn
      */
     public function getUidByFd($fd)
     {
-        return $this->getConnectionInfo($this->getKey($fd, 'fu'));
+        $key = $this->getKey($fd, 'fu');
+        return $this->get($key);
     }
 
     /**
