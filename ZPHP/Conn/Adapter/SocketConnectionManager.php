@@ -7,7 +7,7 @@ use ZPHP\Core\ZConfig as ZConfig,
 /**
  *  redis 容器
  */
-abstract class SocketConnectionBase implements IConn
+abstract class SocketConnectionManager implements IConn
 {
 
     protected function getKey($uid, $prefix = 'uf')

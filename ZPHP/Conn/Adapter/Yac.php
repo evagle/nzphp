@@ -7,7 +7,7 @@ use ZPHP\Conn\IConn,
 /**
  *  yac共享内存
  */
-class Yac extends SocketConnectionBase implements IConn
+class Yac extends SocketConnectionManager implements IConn
 {
 
     private $yac;

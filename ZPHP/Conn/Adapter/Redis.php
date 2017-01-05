@@ -8,7 +8,7 @@ use ZPHP\Core\ZConfig as ZConfig,
 /**
  *  redis 容器
  */
-class Redis extends SocketConnectionBase implements IConn
+class Redis extends SocketConnectionManager implements IConn
 {
 
     private $redis;

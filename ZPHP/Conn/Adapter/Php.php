@@ -6,7 +6,7 @@ use ZPHP\Conn\IConn;
 /**
  *  php内置数组
  */
-class Php extends SocketConnectionBase implements IConn
+class Php extends SocketConnectionManager implements IConn
 {
 
     private $_cache = array();

@@ -6,7 +6,7 @@ use ZPHP\Conn\IConn;
 /**
  *  swoole table 容器
  */
-class Swoole extends SocketConnectionBase implements IConn
+class Swoole extends SocketConnectionManager implements IConn
 {
 
     private $table;
