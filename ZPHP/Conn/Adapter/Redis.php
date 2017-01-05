@@ -60,12 +60,12 @@ class Redis extends SocketConnectionManager implements IConn
 
     protected function get($key)
     {
-        $this->redis->get($key);
+        return $this->redis->get($key);
     }
 
     protected function set($key, $data)
     {
-        $this->redis->set($key, $data);
+        return $this->redis->set($key, $data);
     }
 
     protected function delete($key)

@@ -60,7 +60,7 @@ class Yac extends SocketConnectionManager implements IConn
 
     protected function get($key)
     {
-        $this->yac->get($key);
+        return $this->yac->get($key);
     }
 
     protected function set($key, $data)

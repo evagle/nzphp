@@ -23,7 +23,7 @@ class Swoole extends SocketConnectionManager implements IConn
 
     protected function get($key)
     {
-        $this->table->get($key);
+        return $this->table->get($key);
     }
 
     protected function set($key, $data)
