@@ -75,12 +75,13 @@ class Redis extends SocketConnectionManager implements IConn
 
     protected function addToChannel($channel, $uid, $fd)
     {
-        return $this->redis->hSet($this->getKey($channel), $uid, $fd);
+        $ret = $this->redis->hSet($this->getKey($channel), $uid, $fd);
+        return $ret !== false;
     }
 
     protected function deleteFromChannel($channel, $uid)
     {
-        $this->redis->hDel($this->getKey($channel), $uid);
+        return $this->redis->hDel($this->getKey($channel), $uid);
     }
 
 

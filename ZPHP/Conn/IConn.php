@@ -70,7 +70,7 @@ interface IConn
      * @param $uid
      * @param $channel
      * @param $fd
-     * @return mixed
+     * @return bool
      */
     public function addUidToChannel($channel, $uid, $fd);
 

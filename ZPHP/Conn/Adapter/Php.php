@@ -77,6 +77,7 @@ class Php extends SocketConnectionManager implements IConn
         $channelInfo = $this->getByKey($key);
         $channelInfo[$uid] = $fd;
         $this->_cache[$key] = $channelInfo;
+        return true;
     }
 
     protected function deleteFromChannel($channel, $uid)

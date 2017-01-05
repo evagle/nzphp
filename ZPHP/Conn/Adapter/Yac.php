@@ -78,6 +78,7 @@ class Yac extends SocketConnectionManager implements IConn
         $channelInfo = $this->getChannelInfo($channel);
         $channelInfo[$uid] = $fd;
         $this->yac->set($this->getKey($channel), json_encode($channelInfo), 0);
+        return true;
     }
 
     protected function deleteFromChannel($channel, $uid)

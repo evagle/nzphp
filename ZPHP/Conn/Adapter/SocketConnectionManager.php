@@ -143,23 +143,28 @@ abstract class SocketConnectionManager implements IConn
     public function addUidToChannel($channel, $uid, $fd)
     {
         $connInfo = $this->getConnectionInfo($uid);
-        if(empty($connInfo)) return;
+        if(empty($connInfo))
+            return false;
         $connInfo['channels'][$channel] = 1;
         $fd = empty($fd) ? $connInfo['fd'] : $fd;
         if ($this->addToChannel($channel, $uid, $fd)) {
             $this->set($this->getKey($uid), json_encode($connInfo));
+            return true;
         }
+
+        return false;
     }
 
     public function deleteUidFromChannel($uid, $channel)
     {
-        if($this->deleteFromChannel($channel, $uid)){
-            $connInfo = $this->getConnectionInfo($uid);
-            if(!empty($connInfo['channels'][$channel])) {
-                unset($connInfo['channels'][$channel]);
-                $this->set($this->getKey($uid), json_encode($connInfo));
-            }
+        $this->deleteFromChannel($channel, $uid);
+
+        $connInfo = $this->getConnectionInfo($uid);
+        if(!empty($connInfo['channels'][$channel])) {
+            unset($connInfo['channels'][$channel]);
+            $this->set($this->getKey($uid), json_encode($connInfo));
         }
+
     }
 
 

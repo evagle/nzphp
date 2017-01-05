@@ -38,7 +38,8 @@ class Swoole extends SocketConnectionManager implements IConn
 
     protected function addToChannel($channel, $uid, $fd)
     {
-        return $this->table->hSet($this->getKey($channel), $uid, $fd);
+        $this->table->hSet($this->getKey($channel), $uid, $fd);
+        return true;
     }
 
     protected function deleteFromChannel($channel, $uid)
