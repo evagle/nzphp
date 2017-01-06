@@ -102,6 +102,9 @@ class Connection
             $statement->execute();
             $columns = $statement->fetchAll(\PDO::FETCH_ASSOC);
             $result = [];
+            if (empty($columns)) {
+                throw new \Exception("Table {$this->dbName}.{$table} not exist");
+            }
             foreach ($columns as $item) {
                 $result[$item['COLUMN_NAME']] = $this->changeColumnType($item['COLUMN_TYPE']);
             }

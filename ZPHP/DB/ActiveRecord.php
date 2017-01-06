@@ -172,9 +172,15 @@ class ActiveRecord
 
     public static function rowsCount($where = "1")
     {
-        $instance = new static();
+        $instance = self::getStaticInstance();
         $connection = $instance->getConnection();
         return $connection->rowsCount($instance->table, $instance->primary_key, $where);
+    }
+
+    public static function executeQuery($query)
+    {
+        $connection = self::getStaticInstance()->getConnection();
+        return $connection->executeQuery($query);
     }
 
     protected function _getColumnMetas()
@@ -327,11 +333,6 @@ class ActiveRecord
         $this->deleteById($this->$key);
     }
 
-    public function executeQuery($query)
-    {
-        $connection = $this->getConnection();
-        $connection->executeQuery($query);
-    }
 
     protected function getColumnType($columnName)
     {

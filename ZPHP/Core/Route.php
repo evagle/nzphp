@@ -5,10 +5,7 @@
  * route处理类
  */
 namespace ZPHP\Core;
-use ZPHP\Controller\IController,
-    ZPHP\Core\Factory,
-    ZPHP\Core\ZConfig,
-    ZPHP\ZPHP;
+use ZPHP\Controller\IController;
 use ZPHP\Protocol\Request;
 use ZPHP\Protocol\Response;
 use ZPHP\Session\Swoole as SSESSION;
@@ -21,7 +18,6 @@ class Route
         $class = Factory::getInstance($action);
 
         try {
-
             if (!($class instanceof IController)) {
                 throw new \Exception("ctrl error");
             } else {
@@ -42,15 +38,17 @@ class Route
                 return Response::display($view);
             }
         }catch (\Exception $e) {
+            $exceptionHandler = ZConfig::get('exception_handler', 'ZPHP\ZPHP::exceptionHandler');
+            $result = \call_user_func($exceptionHandler, $e);
             if(Request::isLongServer()) {
-                $result =  \call_user_func(ZConfig::get( 'exception_handler', 'ZPHP\ZPHP::exceptionHandler'), $e);
                 if($class instanceof IController) {
                     $class->_after();
                 }
                 return $result;
-            }
-            if($class instanceof IController) {
-                $class->_after();
+            } else {
+                if ($class instanceof IController) {
+                    $class->_after();
+                }
             }
             throw $e;
         }
