@@ -40,17 +40,23 @@ class Route
         }catch (\Exception $e) {
             $exceptionHandler = ZConfig::get('exception_handler', 'ZPHP\ZPHP::exceptionHandler');
             $result = \call_user_func($exceptionHandler, $e);
-            if(Request::isLongServer()) {
-                if($class instanceof IController) {
-                    $class->_after();
-                }
-                return $result;
-            } else {
-                if ($class instanceof IController) {
-                    $class->_after();
-                }
-            }
-            throw $e;
+            self::runAfter($class);
+            return $result;
         }
     }
+
+    private static function runAfter($class)
+    {
+        try {
+            if ($class instanceof IController) {
+                $class->_after();
+            }
+        } catch (\Exception $e) {
+            $exceptionHandler = ZConfig::get('exception_handler', 'ZPHP\ZPHP::exceptionHandler');
+            \call_user_func($exceptionHandler, $e);
+            return $e;
+        }
+        return null;
+    }
+
 }
