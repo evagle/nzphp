@@ -200,7 +200,7 @@ class Connection
      * @return mixed
      * @throws \Exception
      */
-    public function find($table, $where = '1', $input_params = null, $fields = '*', $orderBy = null, int $limit = 0, $class = null)
+    public function find($table, $where = '1', $input_params = null, $fields = '*', $orderBy = null, $limit = 0, $class = null)
     {
         if (empty($table)) {
             throw new \Exception('table name not given');
