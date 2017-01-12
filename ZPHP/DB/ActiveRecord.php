@@ -104,7 +104,7 @@ class ActiveRecord
     }
 
     /**
-     * @return mixed
+     * @return ActiveRecord
      */
     public static function getStaticInstance()
     {
@@ -226,18 +226,22 @@ class ActiveRecord
         }
 
         if (is_array($ids)) {
+            $placeHolderStr = "";
             foreach ($ids as &$id) {
                 $id = $this->wrapColumnData($this->primary_key, $id);
+                $placeHolderStr .= ",?";
             }
-            $where =  "`{$this->primary_key}` IN ( " . implode(",", $ids). " ) ";
+            $params = $ids;
+            $where =  "`{$this->primary_key}` IN ( " . substr($placeHolderStr, 1) . " ) ";
             $limit = 0;
         } else {
-            $where = "`{$this->primary_key}` = " . $this->wrapColumnData($this->primary_key, $ids);
+            $params = [$this->wrapColumnData($this->primary_key, $ids)];
+            $where = "`{$this->primary_key}` = ?";
             $limit = 1;
         }
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
-        $result = $connection->find($this->table, $where, null, $columns,  $this->orderBy, $limit, $className);
+        $result = $connection->find($this->table, $where, $params, $columns,  $this->orderBy, $limit, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
@@ -263,20 +267,23 @@ class ActiveRecord
         if (empty($fields)) {
             throw new \Exception('query fields is empty');
         }
+
         $cacheKey = $this->getCacheKey("all");
         $data = $this->getFromCache($cacheKey);
         if ($data) {
             return $data;
         }
 
+        $params = [];
         $conditions = [];
         foreach ($fields as $k => $v) {
-            $conditions[] = "`{$k}` = " . $this->wrapColumnData($k, $v);
+            $conditions[] = "`{$k}` = ?";
+            $params[] = $v;
         }
         $where = implode(" and ", $conditions);
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
-        $result = $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+        $result = $connection->find($this->table, $where, $params, $columns,  $this->orderBy, 0, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
@@ -317,7 +324,7 @@ class ActiveRecord
         }
         $key = $this->primary_key;
         $where = "`{$this->primary_key}` = " . $this->wrapColumnData($this->primary_key, $this->$key);
-        return $connection->update($this->table, $columns, $params, $where,false);
+        return $connection->update($this->table, $columns, $params, $where, false);
     }
 
     protected function deleteById($id)
@@ -355,7 +362,7 @@ class ActiveRecord
                 return $value . '';
                 break;
             case self::COLUMN_TYPE_STRING:
-                return $this->getConnection()->getPdo()->quote($value);
+                return $value;
                 break;
         }
         return "";

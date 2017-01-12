@@ -174,25 +174,25 @@ class Connection
 
     protected function begin($table, $func)
     {
-        $this->startTime = microtime(true);
         $debug = ZConfig::get('debug', 0);
         if ($debug) {
+            $this->startTime = microtime(true);
             ZLog::info('pdo_sql', ["start", $func, $table, $this->lastSql]);
         }
     }
 
-    protected function end($table, $func)
+    protected function end($table, $params, $func)
     {
         $debug = ZConfig::get('debug', 0);
         if ($debug) {
-            ZLog::info('pdo_sql', ["end", $func, $table, microtime(true) - $this->startTime, $this->lastSql]);
+            ZLog::info('pdo_sql', ["end", $func, $table, microtime(true) - $this->startTime, $this->lastSql, $params]);
         }
     }
 
     /**
      * @param $table
      * @param string $where
-     * @param null $input_params
+     * @param null $bindParams
      * @param string $fields
      * @param null $orderBy
      * @param int $limit
@@ -200,7 +200,7 @@ class Connection
      * @return mixed
      * @throws \Exception
      */
-    public function find($table, $where = '1', $input_params = null, $fields = '*', $orderBy = null, $limit = 0, $class = null)
+    public function find($table, $where = '1', $bindParams = null, $fields = '*', $orderBy = null, $limit = 0, $class = null)
     {
         if (empty($table)) {
             throw new \Exception('table name not given');
@@ -217,7 +217,7 @@ class Connection
         $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
         $this->begin($table, "find");
-        $statement->execute($input_params);
+        $statement->execute($bindParams);
         if ($class) {
             $statement->setFetchMode(\PDO::FETCH_CLASS, $class);
         } else {
@@ -225,7 +225,7 @@ class Connection
         }
 
         $result = $statement->fetchAll();
-        $this->end($table, "find");
+        $this->end($table, $bindParams, "find");
         return $result;
     }
 
@@ -248,7 +248,7 @@ class Connection
             $params[$field] = $model->getValueForDb($field);
         }
         $statement->execute($params);
-        $this->end($table, "insert");
+        $this->end($table, $params, "insert");
         return $this->pdo->lastInsertId();
     }
 
@@ -274,7 +274,7 @@ class Connection
         $statement = $this->pdo->prepare($query);
         $statement->execute($params);
 
-        $this->end($table, "batchInsert");
+        $this->end($table, $params, "batchInsert");
         return $statement->rowCount();
     }
 
@@ -294,7 +294,7 @@ class Connection
         $statement = $this->pdo->prepare($query);
 
         $statement->execute($params);
-        $this->end($table, "update");
+        $this->end($table, $params, "update");
         return $statement->rowCount();
     }
 
@@ -314,7 +314,7 @@ class Connection
 
         $statement = $this->pdo->prepare($query);
         $statement->execute($params);
-        $this->end($table, "replace");
+        $this->end($table, $params, "replace");
         return $this->pdo->lastInsertId();
     }
 
@@ -338,7 +338,7 @@ class Connection
 
         $statement = $this->pdo->prepare($query);
         $statement->execute($params);
-        $this->end($table, "batchReplace");
+        $this->end($table, $params, "batchReplace");
         return $this->pdo->lastInsertId();
     }
 
@@ -354,7 +354,7 @@ class Connection
 
         $statement = $this->pdo->prepare($query);
         $statement->execute();
-        $this->end($table, "delete");
+        $this->end($table, null, "delete");
         return $statement->rowCount();
     }
 
@@ -375,7 +375,7 @@ class Connection
 
         $statement->execute();
         $result = $statement->fetch();
-        $this->end($table, "rowsCount");
+        $this->end($table, null, "rowsCount");
         return $result["count"];
     }
 
@@ -389,7 +389,7 @@ class Connection
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
 
         $result = $statement->fetchAll();
-        $this->end("rawquery", "executeQuery");
+        $this->end("rawquery", null, "executeQuery");
         return $result;
     }
 
