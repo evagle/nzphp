@@ -15,14 +15,15 @@ class ConnectionPool
 
     /**
      * @param $connectionName
-     * @param bool $throw
-     * @return Connection|null
-     * @throws \Exception
+     * @return null|Connection
      */
     public static function getConnection($connectionName)
     {
         if(!isset(self::$connections[$connectionName])) {
             return null;
+        }
+        if (Request::isLongServer()) {
+            self::$connections[$connectionName]->checkPing();
         }
         return self::$connections[$connectionName];
     }
