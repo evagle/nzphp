@@ -6,7 +6,6 @@
 
 
 namespace ZPHP\DB\Connection;
-use Illuminate\Contracts\Logging\Log;
 use ZPHP\Common\ZLog;
 use ZPHP\Core\ZConfig;
 use ZPHP\DB\ActiveRecord;
@@ -95,7 +94,7 @@ class Connection
     public function getTableColumns($table)
     {
         if ($this->config['driver'] == "mysql") {
-            $query = "SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS ".
+            $query = "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS ".
                 "WHERE TABLE_SCHEMA='{$this->dbName}' and table_name = '{$table}'";
             $statement = $this->pdo->prepare($query);
             $this->lastSql = $query;
@@ -106,7 +105,7 @@ class Connection
                 throw new \Exception("Table {$this->dbName}.{$table} not exist");
             }
             foreach ($columns as $item) {
-                $result[$item['COLUMN_NAME']] = $this->changeColumnType($item['COLUMN_TYPE']);
+                $result[$item['COLUMN_NAME']] = [$this->changeColumnType($item['DATA_TYPE']), $item['COLUMN_DEFAULT']];
             }
             return $result;
         }
@@ -119,7 +118,7 @@ class Connection
         if (strpos($originType, "INT") !== false) {
             return ActiveRecord::COLUMN_TYPE_INT;
         } else if (strpos($originType, "FLOAT") !== false || strpos($originType, "DOUBLE") !== false
-                    || strpos($originType, "DECIMAL") !== false) {
+                    || strpos($originType, "DECIMAL") !== false || strpos($originType, "REAL") !== false) {
             return ActiveRecord::COLUMN_TYPE_FLOAT;
         } else {
             return ActiveRecord::COLUMN_TYPE_STRING;
@@ -229,11 +228,19 @@ class Connection
         return $result;
     }
 
-    public function insert($table, $model, $fields, $onDuplicate = false)
+    public function insert($table, ActiveRecord $model, $fields, $onDuplicate = false)
     {
         if ($onDuplicate) {
             return $this->replace($table, $model, $fields);
         }
+
+        $valuedFields = [];
+        foreach ($fields as $field) {
+            if (property_exists($model, $field) || $model->getColumnDefaultValue($field) != null) {
+                $valuedFields[] = $field;
+            }
+        }
+        $fields = $valuedFields;
 
         $strFields = '`' . implode('`,`', $fields) . '`';
         $strValues = ':' . implode(', :', $fields);
@@ -342,7 +349,7 @@ class Connection
         return $this->pdo->lastInsertId();
     }
 
-    public function delete($table, $where)
+    public function delete($table, $where, $params = null)
     {
         if (empty($where)) {
             return false;
@@ -353,7 +360,7 @@ class Connection
         $this->begin($table, "delete");
 
         $statement = $this->pdo->prepare($query);
-        $statement->execute();
+        $statement->execute($params);
         $this->end($table, null, "delete");
         return $statement->rowCount();
     }

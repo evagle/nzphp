@@ -11,7 +11,6 @@ namespace ZPHP\DB;
 
 use ZPHP\Core\ZConfig;
 use ZPHP\DB\Connection\ConnectionPool;
-use ZPHP\ZPHP;
 
 class ActiveRecord
 {
@@ -41,7 +40,7 @@ class ActiveRecord
     /**
      * store columns of table
      * [
-     *   table_name => [column1 => type, column2 => type]
+     *   table_name => [column1 => [type, default_value], column2 => [type, default_value]]
      * ]
      */
     private static $tableColumnMetas;
@@ -167,7 +166,7 @@ class ActiveRecord
 
     public static function getColumnNames()
     {
-        return self::getStaticInstance()->_getColumnMetas();
+        return array_keys(self::getStaticInstance()->_getColumnMetas());
     }
 
     public static function rowsCount($where = "1")
@@ -308,6 +307,12 @@ class ActiveRecord
         return $result;
     }
 
+    public function insert()
+    {
+        $connection = $this->getConnection();
+        return $connection->insert($this->table, $this, array_keys($this->_getColumnMetas()));
+    }
+
     public function save()
     {
         $connection = $this->getConnection();
@@ -323,15 +328,17 @@ class ActiveRecord
             $params[$field] = $this->getValueForDb($field);
         }
         $key = $this->primary_key;
-        $where = "`{$this->primary_key}` = " . $this->wrapColumnData($this->primary_key, $this->$key);
+        $where = "`{$this->primary_key}` = :_primary_key_";
+        $params[':_primary_key_'] = $this->$key;
         return $connection->update($this->table, $columns, $params, $where, false);
     }
 
     protected function deleteById($id)
     {
         $connection = $this->getConnection();
-        $where = "`{$this->primary_key}` = " . $this->wrapColumnData($this->primary_key, $id);
-        $connection->delete($this->table, $where);
+        $where = "`{$this->primary_key}` = :_primary_key_";
+        $params[':_primary_key_'] = $id;
+        $connection->delete($this->table, $where, $params);
     }
 
     public function deleteSelf()
@@ -345,10 +352,20 @@ class ActiveRecord
     {
         $columnNames = self::$tableColumnMetas[$this->table];
         if (isset($columnNames[$columnName])) {
-            return $columnNames[$columnName];
+            return $columnNames[$columnName][0];
         }
 
         return self::COLUMN_TYPE_UNDEFINED;
+    }
+
+    public function getColumnDefaultValue($columnName)
+    {
+        $columnNames = self::$tableColumnMetas[$this->table];
+        if (isset($columnNames[$columnName])) {
+            return $columnNames[$columnName][1];
+        }
+
+        return null;
     }
 
     protected function wrapColumnData($columnName, $value)
@@ -376,10 +393,15 @@ class ActiveRecord
 
     public function getValueForDb($field)
     {
-        if ($this->saveHooks && isset($this->saveHooks[$field])) {
-            return call_user_func($this->saveHooks[$field], $this->$field);
+        if (property_exists($this, $field)) {
+            if ($this->saveHooks && isset($this->saveHooks[$field])) {
+                return call_user_func($this->saveHooks[$field], $this->$field);
+            } else {
+                return $this->$field;
+            }
+        } else {
+            return $this->getColumnDefaultValue($field);
         }
-        return $this->$field;
     }
 
     /**
