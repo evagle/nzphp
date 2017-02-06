@@ -214,4 +214,9 @@ class RL implements IStorage
 
         return $this->redis->exec();
     }
+
+    public function getClient()
+    {
+        return $this->redis;
+    }
 }

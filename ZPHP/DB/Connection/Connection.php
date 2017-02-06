@@ -18,7 +18,6 @@ class Connection
      */
     private $pdo;
     private $dbName;
-    private $tableName;
     private $config;
     private $lastTime;
     private $lastSql;

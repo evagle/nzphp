@@ -147,4 +147,9 @@ class TT implements IStorage
         return true;
     }
 
+    public function getClient()
+    {
+        return $this->tt;
+    }
+
 }
