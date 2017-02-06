@@ -22,10 +22,16 @@ abstract class Swoole implements ISwooleCallback
      */
     public function onStart(\swoole_server $server)
     {
-        swoole_set_process_name(ZConfig::get('project_name') .
-            ' server running ' .
-            ZConfig::getField('socket', 'server_type', 'tcp') . '://' . ZConfig::getField('socket', 'host') . ':' . ZConfig::getField('socket', 'port')
-            . " time:".date('Y-m-d H:i:s')."  master:" . $server->master_pid);
+        do {
+            if (PHP_OS == "Darwin") {
+                break;
+            }
+            swoole_set_process_name(ZConfig::get('project_name') .
+                ' server running ' .
+                ZConfig::getField('socket', 'server_type', 'tcp') . '://' . ZConfig::getField('socket', 'host') . ':' . ZConfig::getField('socket', 'port')
+                . " time:" . date('Y-m-d H:i:s') . "  master:" . $server->master_pid);
+        } while (0);
+
         if (!empty(ZConfig::get( 'pid_path'))) {
             file_put_contents(ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_master.pid', $server->master_pid);
         }
@@ -55,8 +61,14 @@ abstract class Swoole implements ISwooleCallback
      */
     public function onManagerStart(\swoole_server $server)
     {
-        swoole_set_process_name(ZConfig::get('project_name') .
-            ' server manager:' . $server->manager_pid);
+        do {
+            if (PHP_OS == "Darwin") {
+                break;
+            }
+            swoole_set_process_name(ZConfig::get('project_name') .
+                ' server manager:' . $server->manager_pid);
+        } while (0);
+
         if (!empty(ZConfig::get( 'pid_path'))) {
             file_put_contents(ZConfig::get( 'pid_path') . DS . ZConfig::get('project_name') . '_manager.pid', $server->manager_pid);
         }
@@ -79,12 +91,17 @@ abstract class Swoole implements ISwooleCallback
 
     public function onWorkerStart(\swoole_server $server, $workerId)
     {
-        $workNum = ZConfig::getField('socket', 'worker_num');
-        if ($workerId >= $workNum) {
-            swoole_set_process_name(ZConfig::get('project_name') . " server tasker  num: ".($server->worker_id - $workNum)." pid " . $server->worker_pid);
-        } else {
-            swoole_set_process_name(ZConfig::get('project_name') . " server worker  num: {$server->worker_id} pid " . $server->worker_pid);
-        }
+        do {
+            if (PHP_OS == "Darwin") {
+                break;
+            }
+            $workNum = ZConfig::getField('socket', 'worker_num');
+            if ($workerId >= $workNum) {
+                swoole_set_process_name(ZConfig::get('project_name') . " server tasker  num: " . ($server->worker_id - $workNum) . " pid " . $server->worker_pid);
+            } else {
+                swoole_set_process_name(ZConfig::get('project_name') . " server worker  num: {$server->worker_id} pid " . $server->worker_pid);
+            }
+        } while (0);
 
         if(function_exists('opcache_reset')) {
             opcache_reset();
