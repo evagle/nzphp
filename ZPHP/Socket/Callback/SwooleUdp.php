@@ -7,7 +7,7 @@ namespace ZPHP\Socket\Callback;
 
 abstract class SwooleUdp extends Swoole
 {
-    public function onReceive(\swoole_server $server, int $fd, int $from_id, string $data)
+    public function onReceive(\swoole_server $server, $fd, $from_id, $data)
     {
         throw new \Exception('udp server must use onPacker');
     }
@@ -25,7 +25,7 @@ abstract class SwooleUdp extends Swoole
     $reactor_id = ($clientInfo['server_socket'] << 16) + $clientInfo['port'];
 
      */
-    public function onPacket(\swoole_server $server, string $data, $clientInfo)
+    public function onPacket(\swoole_server $server, $data, $clientInfo)
     {
         throw new \Exception('onPacket not implemented');
     }

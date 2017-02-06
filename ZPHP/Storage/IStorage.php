@@ -28,4 +28,6 @@ interface IStorage
     public function del($userId, $key);
     //关闭服务
     public function close();
+    //获得对应存储相关的实例，例如redis返回一个redis实例
+    public function getClient();
 }

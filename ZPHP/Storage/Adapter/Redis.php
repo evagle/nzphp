@@ -38,7 +38,11 @@ class Redis implements IStorage
 
     private function uKey($userId)
     {
-        return $userId . '_' . $this->suffix;
+        if ($this->suffix) {
+            return $userId . '_' . $this->suffix;
+        } else {
+            return $userId;
+        }
     }
 
     public function getMutilMD($userId, $keys, $slaveConfig = '')
@@ -149,5 +153,10 @@ class Redis implements IStorage
         }
 
         return $this->redis->exec();
+    }
+
+    public function getClient()
+    {
+        return $this->redis;
     }
 }

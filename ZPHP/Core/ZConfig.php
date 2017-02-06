@@ -30,7 +30,7 @@ class ZConfig
         self::$config = $config;
         if (Request::isLongServer()) {
             self::$configPath = $configPath;
-            self::$nextCheckTime = time() + empty($config['project']['config_check_time']) ? 5 : $config['project']['config_check_time'];
+            self::$nextCheckTime = time() + empty($config['config_check_time']) ? 5 : $config['config_check_time'];
             self::$lastModifyTime = \filectime($configPath);
         }
         return $config;
