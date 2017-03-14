@@ -30,8 +30,8 @@ abstract class Swoole implements ISwooleCallback
                 . " time:" . date('Y-m-d H:i:s') . "  master:" . $server->master_pid);
         }
 
-        if (!empty(ZPaths::get('pid_path'))) {
-            file_put_contents(ZPaths::get('pid_path') . DS . ZConfig::get('project_name') . '_master.pid', $server->master_pid);
+        if (!empty(ZPaths::getPath('pid_path'))) {
+            file_put_contents(ZPaths::getPath('pid_path') . DS . ZConfig::get('project_name') . '_master.pid', $server->master_pid);
         }
     }
 
@@ -40,12 +40,12 @@ abstract class Swoole implements ISwooleCallback
      */
     public function onShutDown(\swoole_server $server)
     {
-        if (!empty(ZPaths::get('pid_path'))) {
-            $filename = ZPaths::get('pid_path') . DS . ZConfig::get('project_name') . '_master.pid';
+        if (!empty(ZPaths::getPath('pid_path'))) {
+            $filename = ZPaths::getPath('pid_path') . DS . ZConfig::get('project_name') . '_master.pid';
             if (is_file($filename)) {
                 unlink($filename);
             }
-            $filename = ZPaths::get('pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
+            $filename = ZPaths::getPath('pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
             if (is_file($filename)) {
                 unlink($filename);
             }
@@ -64,8 +64,8 @@ abstract class Swoole implements ISwooleCallback
                 ' server manager:' . $server->manager_pid);
         }
 
-        if (!empty(ZPaths::get('pid_path'))) {
-            file_put_contents(ZPaths::get('pid_path') . DS . ZConfig::get('project_name') . '_manager.pid', $server->manager_pid);
+        if (!empty(ZPaths::getPath('pid_path'))) {
+            file_put_contents(ZPaths::getPath('pid_path') . DS . ZConfig::get('project_name') . '_manager.pid', $server->manager_pid);
         }
     }
 
@@ -76,8 +76,8 @@ abstract class Swoole implements ISwooleCallback
      */
     public function onManagerStop(\swoole_server $server)
     {
-        if (!empty(ZPaths::get('pid_path'))) {
-            $filename = ZPaths::get('pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
+        if (!empty(ZPaths::getPath('pid_path'))) {
+            $filename = ZPaths::getPath('pid_path') . DS . ZConfig::get('project_name') . '_manager.pid';
             if (is_file($filename)) {
                 unlink($filename);
             }
