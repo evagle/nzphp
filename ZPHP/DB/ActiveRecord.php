@@ -108,7 +108,7 @@ class ActiveRecord
     public static function getStaticInstance()
     {
         $className = static::class;
-        if (!self::$staticInstancesPool[$className]) {
+        if (empty(self::$staticInstancesPool[$className])) {
             $instance = new $className;
             self::$staticInstancesPool[$className] = $instance;
         }
@@ -344,6 +344,7 @@ class ActiveRecord
             $where = implode(' and ', $whereComponents);
         } else {
             $where = "`{$this->primary_key}` = :_primary_key_";
+            $key = $this->primary_key;
             $params[':_primary_key_'] = $this->$key;
         }
         return $connection->update($this->table, $columns, $params, $where, false);
