@@ -331,15 +331,17 @@ class ActiveRecord
         foreach ($columns as $field) {
             $params[$field] = $this->getValueForDb($field);
         }
-        $where = "";
+
         if (!empty($whereCondition)) {
+            $whereComponents = [];
             foreach ($whereCondition as $item) {
                 $item = array_map(function($var){
                     return filter_var(trim($var), FILTER_SANITIZE_MAGIC_QUOTES);
                 }, $item);
-                $where .= "`{$item[0]}` {$item[1]} :where_{$item[0]}";
+                $whereComponents[] = "`{$item[0]}` {$item[1]} :where_{$item[0]}";
                 $params[":where_{$item[0]}"] = $item[2];
             }
+            $where = implode(' and ', $whereComponents);
         } else {
             $where = "`{$this->primary_key}` = :_primary_key_";
             $params[':_primary_key_'] = $this->$key;
