@@ -319,7 +319,11 @@ class ActiveRecord
         return $connection->replace($this->table, $this, array_keys($this->_getColumnMetas()));
     }
 
-    public function update()
+    /**
+     * @param array $whereCondition: [['id', "=", $id], ['status' , "<>",  1]]
+     * @return int
+     */
+    public function update($whereCondition = [])
     {
         $connection = $this->getConnection();
         $params = array();
@@ -327,9 +331,19 @@ class ActiveRecord
         foreach ($columns as $field) {
             $params[$field] = $this->getValueForDb($field);
         }
-        $key = $this->primary_key;
-        $where = "`{$this->primary_key}` = :_primary_key_";
-        $params[':_primary_key_'] = $this->$key;
+        $where = "";
+        if (!empty($whereCondition)) {
+            foreach ($whereCondition as $item) {
+                $item = array_map(function($var){
+                    return filter_var(trim($var), FILTER_SANITIZE_MAGIC_QUOTES);
+                }, $item);
+                $where .= "`{$item[0]}` {$item[1]} :where_{$item[0]}";
+                $params[":where_{$item[0]}"] = $item[2];
+            }
+        } else {
+            $where = "`{$this->primary_key}` = :_primary_key_";
+            $params[':_primary_key_'] = $this->$key;
+        }
         return $connection->update($this->table, $columns, $params, $where, false);
     }
 
