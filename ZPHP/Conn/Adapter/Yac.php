@@ -2,7 +2,7 @@
 
 namespace ZPHP\Conn\Adapter;
 use ZPHP\Conn\IConn,
-    ZPHP\Cache\Factory as ZCache;
+    ZPHP\Cache\ZCache as ZCache;
 
 /**
  *  yac共享内存

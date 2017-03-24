@@ -10,10 +10,8 @@ namespace ZPHP\Socket\Callback;
 
 use ZPHP\Socket\ICallback;
 use ZPHP\Core\ZConfig as ZConfig;
-use ZPHP\Protocol;
-use ZPHP\Core;
 use \HttpParser;
-use ZPHP\Conn\Factory as ZCache;
+use ZPHP\Cache\ZCache as ZCache;
 
 
 abstract class HttpServer implements ICallback

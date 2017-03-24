@@ -9,10 +9,9 @@ namespace ZPHP\Protocol\Adapter;
 use ZPHP\Core\ZConfig;
 use ZPHP\Common\MessagePacker;
 use ZPHP\Protocol\IProtocol;
-use ZPHP\Cache\Factory as ZCache;
+use ZPHP\Cache\ZCache as ZCache;
 use ZPHP\Common\Route as ZRoute;
 use ZPHP\Protocol\Request;
-use ZPHP\View;
 
 class ZRpack implements IProtocol
 {

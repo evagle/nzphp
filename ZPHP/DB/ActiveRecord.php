@@ -9,6 +9,7 @@
 namespace ZPHP\DB;
 
 
+use ZPHP\Cache\ZCache;
 use ZPHP\Core\ZConfig;
 use ZPHP\DB\Connection\ConnectionPool;
 
@@ -285,6 +286,14 @@ class ActiveRecord
         return $result;
     }
 
+    /**
+     * @param $fields: ['k1' => 1, 'k2' => "v"] or [['id', ">=", 1], ["name", "is", "null"]]
+     * @param bool $assoc
+     * @param string $columns
+     * @param string $orderBy
+     * @return bool|mixed
+     * @throws \Exception
+     */
     public function findByCondition($fields, $assoc = false, $columns = "*", $orderBy = "")
     {
         if (empty($fields)) {
@@ -301,12 +310,27 @@ class ActiveRecord
         }
 
         $params = [];
-        $conditions = [];
-        foreach ($fields as $k => $v) {
-            $conditions[] = "`{$k}` = ?";
-            $params[] = $v;
+        if (is_array($fields[0]) && count($fields[0]) == 3) {
+            $whereComponents = [];
+            foreach ($fields as $item) {
+                $item = array_map(function($var){
+                    return filter_var($var, FILTER_SANITIZE_MAGIC_QUOTES);
+                }, $item);
+                $whereComponents[] = "`{$item[0]}` {$item[1]} :where_{$item[0]}";
+                $params[":where_{$item[0]}"] = $item[2];
+            }
+            $where = implode(" and ", $whereComponents);
+        } else {
+            $conditions = [];
+            foreach ($fields as $k => $v) {
+                $k = filter_var($k, FILTER_SANITIZE_MAGIC_QUOTES);
+                $v = filter_var($v, FILTER_SANITIZE_MAGIC_QUOTES);
+                $conditions[] = "`{$k}` = ?";
+                $params[] = $v;
+            }
+            $where = implode(" and ", $conditions);
         }
-        $where = implode(" and ", $conditions);
+
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
         $result = $connection->find($this->table, $where, $params, $columns,  $this->_orderBy, $this->_limit, $className);
@@ -315,7 +339,15 @@ class ActiveRecord
         return $result;
     }
 
-    public function findWhere($where, $assoc = false, $columns = "*", $orderBy = "")
+    /**
+     * @param $whereCondition : [['id', ">=", 1], ["name", "is", "null"]]
+     * @param bool $assoc
+     * @param string $columns
+     * @param string $orderBy
+     * @return bool|mixed
+     * @throws \Exception
+     */
+    public function findWhere($whereCondition, $assoc = false, $columns = "*", $orderBy = "")
     {
         if (empty($where)) {
             throw new \Exception('where condition is empty!');
@@ -329,9 +361,20 @@ class ActiveRecord
             return $data;
         }
 
+        $params = [];
+        $whereComponents = [];
+        foreach ($whereCondition as $item) {
+            $item = array_map(function($var){
+                return filter_var($var, FILTER_SANITIZE_MAGIC_QUOTES);
+            }, $item);
+            $whereComponents[] = "`{$item[0]}` {$item[1]} :where_{$item[0]}";
+            $params[":where_{$item[0]}"] = $item[2];
+        }
+        $where = implode(' and ', $whereComponents);
+
         $connection = $this->getConnection();
         $className = $assoc ? "" : $this->className;
-        $result = $connection->find($this->table, $where, null, $columns,  $this->_orderBy, $this->_limit, $className);
+        $result = $connection->find($this->table, $where, $params, $columns, $this->_orderBy, $this->_limit, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
@@ -457,7 +500,7 @@ class ActiveRecord
     public function getCache()
     {
         $config = ZConfig::getField('cache', $this->cacheConfigName, null, true);
-        $cacheInstance = \ZPHP\Cache\Factory::getInstance($config['adapter'], $config);
+        $cacheInstance = ZCache::getInstance($config['adapter'], $config);
         return $cacheInstance;
     }
 

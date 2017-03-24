@@ -2,7 +2,7 @@
 namespace ZPHP\Common;
 
 use ZPHP\Core\ZConfig as ZConfig;
-use ZPHP\Cache\Factory as ZCache;
+use ZPHP\Cache\ZCache as ZCache;
 
 /**
  * Route
