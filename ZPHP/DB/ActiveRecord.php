@@ -35,7 +35,12 @@ class ActiveRecord
     /**
      * set order by rules
      */
-    protected $orderBy;
+    protected $_orderBy;
+
+    /**
+     * set limit count
+     */
+    protected $_limit;
 
     /**
      * store columns of table
@@ -133,9 +138,9 @@ class ActiveRecord
      * @param string $columns
      * @return null|ActiveRecord
      */
-    public static function find($id, $assoc = false, $columns = "*")
+    public static function find($id, $assoc = false, $columns = "*", $orderBy = "")
     {
-        $results = self::getStaticInstance()->findByIds($id, $assoc, $columns);
+        $results = self::getStaticInstance()->findByIds($id, $assoc, $columns, $orderBy);
         if (count($results) > 0) {
             return $results[0];
         } else {
@@ -143,25 +148,26 @@ class ActiveRecord
         }
     }
 
-    public static function findMany(array $ids, $assoc = false, $columns = "*")
+    public static function findMany(array $ids, $assoc = false, $columns = "*", $orderBy = "")
     {
-        return self::getStaticInstance()->findByIds($ids, $assoc, $columns);
+        return self::getStaticInstance()->findByIds($ids, $assoc, $columns, $orderBy);
     }
 
     /**
-     * @param array $fields: ["a" => 1, "b" =>2]
+     * @param array $fields : ["a" => 1, "b" =>2]
      * @param bool $assoc
      * @param string $columns
+     * @param string $orderBy
      * @return mixed
      */
-    public static function findByFields(array $fields, $assoc = false, $columns = "*")
+    public static function findByFields(array $fields, $assoc = false, $columns = "*", $orderBy = "")
     {
-        return self::getStaticInstance()->findByCondition($fields, $assoc, $columns);
+        return self::getStaticInstance()->findByCondition($fields, $assoc, $columns, $orderBy);
     }
 
-    public static function all($assoc = false, $columns = "*")
+    public static function all($assoc = false, $columns = "*", $orderBy = "")
     {
-        return self::getStaticInstance()->findAll($assoc, $columns);
+        return self::getStaticInstance()->findAll($assoc, $columns, $orderBy);
     }
 
     public static function getColumnNames()
@@ -185,6 +191,18 @@ class ActiveRecord
     protected function _getColumnMetas()
     {
         return self::$tableColumnMetas[$this->table];
+    }
+
+    public function orderBy($orderBy)
+    {
+        $this->_orderBy = filter_var($orderBy, FILTER_SANITIZE_MAGIC_QUOTES);
+        return $this;
+    }
+
+    public function limit($num)
+    {
+        $this->_limit = "limit ".filter_var($num, FILTER_VALIDATE_INT);
+        return $this;
     }
 
     /**
@@ -216,8 +234,11 @@ class ActiveRecord
         return $connection;
     }
 
-    public function findByIds($ids, $assoc = false, $columns = "*")
+    public function findByIds($ids, $assoc = false, $columns = "*", $orderBy = "")
     {
+        if (!empty($orderBy)) {
+            $this->_orderBy = $orderBy;
+        }
         $cacheKey = $this->getCacheKey($ids);
         $data = $this->getFromCache($cacheKey);
         if ($data) {
@@ -240,34 +261,40 @@ class ActiveRecord
         }
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
-        $result = $connection->find($this->table, $where, $params, $columns,  $this->orderBy, $limit, $className);
+        $result = $connection->find($this->table, $where, $params, $columns,  $this->_orderBy, $limit, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
     }
 
-    public function findAll($assoc = false, $columns = "*")
+    public function findAll($assoc = false, $columns = "*", $orderBy = "")
     {
-        $cacheKey = $this->getCacheKey("all");
+        if (!empty($orderBy)) {
+            $this->_orderBy = $orderBy;
+        }
+        $cacheKey = $this->getCacheKey("all_".$this->_orderBy."_".$this->_limit);
         $data = $this->getFromCache($cacheKey);
         if ($data) {
             return $data;
         }
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
-        $result = $connection->find($this->table, "1", null, $columns, $this->orderBy, 0, $className);
+        $result = $connection->find($this->table, "1", null, $columns, $this->_orderBy, $this->_limit, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
     }
 
-    public function findByCondition($fields, $assoc = false, $columns = "*")
+    public function findByCondition($fields, $assoc = false, $columns = "*", $orderBy = "")
     {
         if (empty($fields)) {
             throw new \Exception('query fields is empty');
         }
+        if (!empty($orderBy)) {
+            $this->_orderBy = $orderBy;
+        }
 
-        $cacheKey = $this->getCacheKey("all");
+        $cacheKey = $this->getCacheKey(json_encode($fields).$this->_orderBy."_".$this->_limit);
         $data = $this->getFromCache($cacheKey);
         if ($data) {
             return $data;
@@ -282,18 +309,21 @@ class ActiveRecord
         $where = implode(" and ", $conditions);
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
-        $result = $connection->find($this->table, $where, $params, $columns,  $this->orderBy, 0, $className);
+        $result = $connection->find($this->table, $where, $params, $columns,  $this->_orderBy, $this->_limit, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
     }
 
-    public function findWhere($where, $assoc = false, $columns = "*")
+    public function findWhere($where, $assoc = false, $columns = "*", $orderBy = "")
     {
         if (empty($where)) {
             throw new \Exception('where condition is empty!');
         }
-        $cacheKey = $this->getCacheKey($where);
+        if (!empty($orderBy)) {
+            $this->_orderBy = $orderBy;
+        }
+        $cacheKey = $this->getCacheKey($where.$this->_orderBy."_".$this->_limit);
         $data = $this->getFromCache($cacheKey);
         if ($data) {
             return $data;
@@ -301,7 +331,7 @@ class ActiveRecord
 
         $connection = $this->getConnection();
         $className = $assoc ? "" : $this->className;
-        $result = $connection->find($this->table, $where, null, $columns,  $this->orderBy, 0, $className);
+        $result = $connection->find($this->table, $where, null, $columns,  $this->_orderBy, $this->_limit, $className);
 
         $this->addToCache($cacheKey, $result);
         return $result;
