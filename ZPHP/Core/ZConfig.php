@@ -39,12 +39,12 @@ class ZConfig
 
     public static function loadFiles(array $files)
     {
-        $config = array();
+        $__config = array();
         foreach ($files as $file) {
-            $config += include "{$file}";
+            $__config += include "{$file}";
         }
-        self::$config = $config;
-        return $config;
+        self::$config = $__config;
+        return self::$config;
     }
 
     public static function get($key, $default = null, $throw = false)
