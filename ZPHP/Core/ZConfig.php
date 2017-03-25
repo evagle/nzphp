@@ -21,19 +21,20 @@ class ZConfig
     public static function load($configPath)
     {
         $files = Dir::tree($configPath, "/.php$/");
-        $config = array();
+        // 不要直接使用$config,include app.php时会导出变量$config,产生覆盖
+        $__zconfig = array();
         if (!empty($files)) {
             foreach ($files as $file) {
-                $config += include "{$file}";
+                $__zconfig += include "{$file}";
             }
         }
-        self::$config = $config;
+        self::$config = $__zconfig;
         if (Request::isLongServer()) {
             self::$configPath = $configPath;
             self::$nextCheckTime = time() + empty($config['config_check_time']) ? 5 : $config['config_check_time'];
             self::$lastModifyTime = \filectime($configPath);
         }
-        return $config;
+        return self::$config;
     }
 
     public static function loadFiles(array $files)
