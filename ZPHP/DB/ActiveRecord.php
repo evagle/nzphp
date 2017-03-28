@@ -171,6 +171,11 @@ class ActiveRecord
         return self::getStaticInstance()->findAll($assoc, $columns, $orderBy);
     }
 
+    public static function delete($id)
+    {
+        return self::getStaticInstance()->deleteById($id);
+    }
+
     public static function getColumnNames()
     {
         return array_keys(self::getStaticInstance()->_getColumnMetas());
@@ -425,16 +430,19 @@ class ActiveRecord
 
     protected function deleteById($id)
     {
+        if (empty($id)) {
+            throw new \Exception("Id to delete cannot be empty.");
+        }
         $connection = $this->getConnection();
         $where = "`{$this->primary_key}` = :_primary_key_";
         $params[':_primary_key_'] = $id;
-        $connection->delete($this->table, $where, $params);
+        return $connection->delete($this->table, $where, $params);
     }
 
     public function deleteSelf()
     {
         $key = $this->primary_key;
-        $this->deleteById($this->$key);
+        return $this->deleteById($this->$key);
     }
 
 
