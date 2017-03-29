@@ -22,8 +22,16 @@ class ZConfig
     {
         $files = Dir::tree($configPath, "/.php$/");
         // 不要直接使用$config,include app.php时会导出变量$config,产生覆盖
+        // 优先加载public.configs.php的配置, 项目配置覆盖public配置
         $__zconfig = array();
         if (!empty($files)) {
+            foreach ($files as $i => $file) {
+                if (substr($file, -18) == "public.configs.php") {
+                    $__zconfig += include "{$file}";
+                    unset($files[$i]);
+                    break;
+                }
+            }
             foreach ($files as $file) {
                 $__zconfig += include "{$file}";
             }
