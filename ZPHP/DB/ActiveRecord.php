@@ -128,8 +128,8 @@ class ActiveRecord
         }
         $connection = $this->getConnection();
 
-        if (empty(self::$tableColumnMetas[$this->table])) {
-            self::$tableColumnMetas[$this->table] = $connection->getTableColumns($this->table);
+        if (empty(self::$tableColumnMetas[$this->connectionName.$this->table])) {
+            self::$tableColumnMetas[$this->connectionName.$this->table] = $connection->getTableColumns($this->table);
         }
     }
 
@@ -196,7 +196,7 @@ class ActiveRecord
 
     protected function _getColumnMetas()
     {
-        return self::$tableColumnMetas[$this->table];
+        return self::$tableColumnMetas[$this->connectionName.$this->table];
     }
 
     public function orderBy($orderBy)
@@ -448,7 +448,7 @@ class ActiveRecord
 
     protected function getColumnType($columnName)
     {
-        $columnNames = self::$tableColumnMetas[$this->table];
+        $columnNames = self::$tableColumnMetas[$this->connectionName.$this->table];
         if (isset($columnNames[$columnName])) {
             return $columnNames[$columnName][0];
         }
@@ -458,7 +458,7 @@ class ActiveRecord
 
     public function getColumnDefaultValue($columnName)
     {
-        $columnNames = self::$tableColumnMetas[$this->table];
+        $columnNames = self::$tableColumnMetas[$this->connectionName.$this->table];
         if (isset($columnNames[$columnName])) {
             return $columnNames[$columnName][1];
         }
