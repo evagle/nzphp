@@ -5,7 +5,8 @@
  */
 namespace ZPHP\Queue\Adapter;
 
-use ZPHP\Manager;
+
+use ZPHP\DB\Redis\RedisFactory;
 
 class Redis
 {
@@ -14,7 +15,7 @@ class Redis
     public function __construct($config)
     {
         if (empty($this->redis)) {
-            $this->redis = Manager\Redis::getInstance($config);
+            $this->redis = RedisFactory::getRedis($config);
         }
     }
 

@@ -6,8 +6,8 @@
 
 
 namespace ZPHP\Rank\Adapter;
-use ZPHP\Manager,
-    ZPHP\Rank\IRank;
+use ZPHP\DB\Redis\RedisFactory;
+use ZPHP\Rank\IRank;
 
 class Redis implements IRank
 {
@@ -16,7 +16,7 @@ class Redis implements IRank
     public function __construct($config)
     {
         if (empty($this->redis)) {
-            $this->redis = Manager\Redis::getInstance($config);
+            $this->redis = RedisFactory::getRedis($config);
         }
     }
 

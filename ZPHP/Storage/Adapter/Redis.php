@@ -6,8 +6,8 @@
 
 
 namespace ZPHP\Storage\Adapter;
-use ZPHP\Manager,
-    ZPHP\Storage\IStorage;
+use ZPHP\DB\Redis\RedisFactory;
+use ZPHP\Storage\IStorage;
 
 class Redis implements IStorage
 {
@@ -19,7 +19,7 @@ class Redis implements IStorage
     public function __construct($config)
     {
         if (empty($this->redis)) {
-            $this->redis = Manager\Redis::getInstance($config);
+            $this->redis = RedisFactory::getRedis($config);
             $this->pconnect = $config['pconnect'];
         }
     }
@@ -27,7 +27,7 @@ class Redis implements IStorage
     public function setSlave($config)
     {
         if (empty($this->sRedis)) {
-            $this->sRedis = Manager\Redis::getInstance($config);
+            $this->sRedis = RedisFactory::getRedis($config);
         }
     }
 

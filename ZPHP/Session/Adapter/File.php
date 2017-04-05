@@ -7,7 +7,6 @@
 
 namespace ZPHP\Session\Adapter;
 
-use ZPHP\Manager;
 use ZPHP\ZPHP;
 
 class File

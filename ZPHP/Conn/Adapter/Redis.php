@@ -1,9 +1,9 @@
 <?php
 
 namespace ZPHP\Conn\Adapter;
-use ZPHP\Core\ZConfig as ZConfig,
-    ZPHP\Conn\IConn,
-    ZPHP\Manager\Redis as ZRedis;
+use ZPHP\Conn\IConn;
+use ZPHP\Core\ZConfig;
+use ZPHP\DB\Redis\RedisFactory;
 
 /**
  *  redis 容器
@@ -16,7 +16,7 @@ class Redis extends SocketConnectionManager implements IConn
     public function __construct($config)
     {
         if(empty($this->redis)) {
-            $this->redis = ZRedis::getInstance($config);
+            $this->redis = RedisFactory::getRedis($config);
             $db = ZConfig::getField('connection', 'db', 0);
             if(!empty($db)) {
                 $this->redis->select($db);

@@ -6,8 +6,8 @@
 
 
 namespace ZPHP\Cache\Adapter;
-use ZPHP\Cache\ICache,
-    ZPHP\Manager;
+use ZPHP\Cache\ICache;
+use ZPHP\DB\Redis\RedisFactory;
 
 class Redis implements ICache
 {
@@ -16,7 +16,7 @@ class Redis implements ICache
     public function __construct($config)
     {
         if (empty($this->redis)) {
-            $this->redis = Manager\Redis::getInstance($config);
+            $this->redis = RedisFactory::getRedis($config);
         }
     }
 
@@ -32,7 +32,7 @@ class Redis implements ICache
 
     public function add($key, $value, $expiration = 0)
     {
-        return $this->redis->setNex($key, $expiration, $value);
+        return $this->redis->setex($key, $expiration, $value);
     }
 
     public function set($key, $value, $expiration = 0)
@@ -71,7 +71,7 @@ class Redis implements ICache
 
     public function decrement($key, $offset = 1)
     {
-        return $this->redis->decBy($key, $offset);
+        return $this->redis->decrBy($key, $offset);
     }
 
     public function clear()

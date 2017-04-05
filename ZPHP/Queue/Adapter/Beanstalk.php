@@ -5,8 +5,6 @@
  */
 namespace ZPHP\Queue\Adapter;
 
-use ZPHP\Manager;
-
 class Beanstalk
 {
     private $beanstalk;
@@ -14,7 +12,10 @@ class Beanstalk
     public function __construct($config)
     {
         if (empty($this->beanstalk)) {
-            $this->beanstalk = Manager\Beanstalk::getInstance($config);
+            $this->beanstalk = new \Beanstalk();
+            foreach ($config['servers'] as $server) {
+                $this->beanstalk->addServer($server['host'], $server['port']);
+            }
         }
     }
 
