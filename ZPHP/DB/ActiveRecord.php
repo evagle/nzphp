@@ -11,7 +11,7 @@ namespace ZPHP\DB;
 
 use ZPHP\Cache\ZCache;
 use ZPHP\Core\ZConfig;
-use ZPHP\DB\Connection\ConnectionPool;
+use ZPHP\DB\Connection\ConnectionFactory;
 
 class ActiveRecord
 {
@@ -228,11 +228,11 @@ class ActiveRecord
      */
     protected function getConnection()
     {
-        $connection = ConnectionPool::getConnection($this->connectionName);
+        $connection = ConnectionFactory::getConnection($this->connectionName);
         if (!$connection) {
             $config = $this->getConnectionConfig();
             if ($config) {
-                $connection = ConnectionPool::addConnection($this->connectionName, $config);
+                $connection = ConnectionFactory::addConnection($this->connectionName, $config);
             } else {
                 throw new \Exception('Database config empty. connection name = '.$this->connectionName);
             }

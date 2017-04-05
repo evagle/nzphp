@@ -8,7 +8,7 @@
 namespace ZPHP\DB\Connection;
 use ZPHP\Protocol\Request;
 
-class ConnectionPool
+class ConnectionFactory
 {
 
     protected static $connections = [];
