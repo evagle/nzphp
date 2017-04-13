@@ -419,6 +419,7 @@ class Connection
                 try {
                     $status = $this->pdo->getAttribute(\PDO::ATTR_SERVER_INFO);
                 } catch (\Exception $e) {
+                    ZLog::error('pdo_sql', ["Connection failed: ", $this->lastSql, $this->lastTime, $e->getCode(), $e->getMessage()]);
                     if ($e->getCode() == 'HY000') {
                         $this->pdo = $this->connect();
                     } else {
