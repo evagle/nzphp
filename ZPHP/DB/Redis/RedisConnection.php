@@ -9,8 +9,12 @@ use ZPHP\Common\ZLog;
  * Date: 5/4/2017
  * Time: 12:27
  */
-class RedisConnection extends \Redis
+class RedisConnection
 {
+    /**
+     * @var \Redis
+     */
+    private $redisInstance;
     protected $config;
     protected $ispconnect;
     protected $pingtime;
@@ -41,7 +45,7 @@ class RedisConnection extends \Redis
         $now = time();
         if ($this->pingtime && $this->lastPingTime + $this->pingtime <= $now) {
             try {
-                if ($this->ping() != "PONG") {
+                if ($this->redisInstance->ping() != "PONG") {
                     $this->close();
                     ZLog::emergency('redis.error', ["Redis ping failed.", $this->config]);
                     return false;
@@ -56,36 +60,32 @@ class RedisConnection extends \Redis
         return true;
     }
 
-    public function reconnect()
+    public function getRedisInstance()
     {
+        return $this->redisInstance;
+    }
+
+    public function connect()
+    {
+        $this->redisInstance = new \Redis();
         if ($this->ispconnect) {
-            $connectResult = $this->pconnect($this->config['host'], $this->config['port'], $this->timeout);
+            $connectResult = $this->redisInstance->pconnect($this->config['host'], $this->config['port'], $this->timeout);
         } else {
-            $connectResult = $this->connect($this->config['host'], $this->config['port'], $this->timeout);
+            $connectResult = $this->redisInstance->connect($this->config['host'], $this->config['port'], $this->timeout);
         }
         if ($connectResult != true) {
-            ZLog::emergency('redis.error', ["Connect to redis failed.", $this->config]);
+            $msg = "Connect to redis failed. ErrorMsg = " . $this->redisInstance->getLastError() ." Config = " . json_encode($this->config);
+            ZLog::emergency('redis.error', [$msg]);
+            $this->redisInstance = null;
             throw new \RedisException("Connect to redis failed. config=".json_encode($this->config));
         }
-    }
-
-    public function connect($host, $port = 6379, $timeout = 0.0)
-    {
-        parent::connect($host, $port, $timeout);
-        $this->isClosed = false;
-        $this->lastPingTime = time();
-    }
-
-    public function pconnect($host, $port = 6379, $timeout = 0.0)
-    {
-        parent::pconnect($host, $port, $timeout);
         $this->isClosed = false;
         $this->lastPingTime = time();
     }
 
     public function close()
     {
-        parent::close();
+        $this->redisInstance->close();
         if (!$this->ispconnect) {
             $this->isClosed = true;
         }
