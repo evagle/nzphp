@@ -22,12 +22,12 @@ class RedisFactory
         if (empty(self::$instances[$name])) {
             $instance = new RedisConnection();
             $instance->setConfig($config);
-            $instance->reconnect();
+            $instance->connect();
             self::$instances[$name] = $instance;
         } else {
             $instance = self::$instances[$name];
             if (!$instance->checkPing()) {
-                $instance->reconnect();
+                $instance->connect();
             }
         }
         return self::$instances[$name];
