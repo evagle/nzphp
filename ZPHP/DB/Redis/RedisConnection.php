@@ -60,6 +60,9 @@ class RedisConnection
         return true;
     }
 
+    /**
+     * @return \Redis
+     */
     public function getRedisInstance()
     {
         return $this->redisInstance;
@@ -89,5 +92,6 @@ class RedisConnection
         if (!$this->ispconnect) {
             $this->isClosed = true;
         }
+        $this->redisInstance = null;
     }
 }

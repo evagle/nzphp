@@ -14,7 +14,7 @@ class RedisFactory
 
     /**
      * @param $config
-     * @return RedisConnection : extends \Redis
+     * @return \Redis
      */
     public static function getRedis($config)
     {
@@ -30,7 +30,7 @@ class RedisFactory
                 $instance->connect();
             }
         }
-        return self::$instances[$name];
+        return self::$instances[$name]->getRedisInstance();
     }
 
     public static function remove($config)
