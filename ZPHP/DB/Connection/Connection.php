@@ -229,10 +229,6 @@ class Connection
 
     public function insert($table, ActiveRecord $model, $fields, $onDuplicate = false)
     {
-        if ($onDuplicate) {
-            return $this->replace($table, $model, $fields);
-        }
-
         $valuedFields = [];
         foreach ($fields as $field) {
             if (property_exists($model, $field) || $model->getColumnDefaultValue($field) != null) {
@@ -245,6 +241,9 @@ class Connection
         $strValues = ':' . implode(', :', $fields);
 
         $query = "INSERT INTO `{$this->dbName}`.`{$table}` ({$strFields}) VALUES ({$strValues})";
+        if ($onDuplicate) {
+            $query .= " ON DUPLICATE KEY UPDATE";
+        }
         $this->lastSql = $query;
         $this->begin($table, "insert");
 
@@ -283,7 +282,6 @@ class Connection
         $this->end($table, $params, "batchInsert");
         return $statement->rowCount();
     }
-
 
     public function update($table, $fields, $params, $where, $change = false)
     {

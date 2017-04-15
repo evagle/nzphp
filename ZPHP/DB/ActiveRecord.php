@@ -394,6 +394,12 @@ class ActiveRecord
     public function save()
     {
         $connection = $this->getConnection();
+        return $connection->insert($this->table, $this, array_keys($this->_getColumnMetas()), true);
+    }
+
+    public function replace()
+    {
+        $connection = $this->getConnection();
         return $connection->replace($this->table, $this, array_keys($this->_getColumnMetas()));
     }
 
