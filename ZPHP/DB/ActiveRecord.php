@@ -23,6 +23,9 @@ class ActiveRecord
 //    const COLUMN_TYPE_BINARY = 4;
 //    const COLUMN_TYPE_DATE = 5;
 
+    const AR_SOURCE_NEW = 1;
+    const AR_SOURCE_FETCH = 2;
+
     /**
      * primary key of table
      */
@@ -49,12 +52,12 @@ class ActiveRecord
      *   table_name => [column1 => [type, default_value], column2 => [type, default_value]]
      * ]
      */
-    private static $tableColumnMetas;
+    private static $_tableColumnMetas;
 
     /**
      * store a instance for each class
      */
-    private static $staticInstancesPool;
+    private static $_staticInstancesPool;
 
     /**
      * connection name set in config
@@ -73,7 +76,7 @@ class ActiveRecord
      */
     protected $cacheConfigName;
 
-    private $baseCacheKey;
+    private $_baseCacheKey;
 
     /**
      * @var array callbacks called after data fetched form db
@@ -93,10 +96,12 @@ class ActiveRecord
      */
     protected $saveHooks;
 
+    private $_source;
+
     public function __construct(array $attributes = [])
     {
         $this->className = static::class;
-        if (!isset(self::$staticInstancesPool[$this->className])) {
+        if (!isset(self::$_staticInstancesPool[$this->className])) {
             $this->initConnection();
         }
         if ($this->fetchHooks) {
@@ -106,6 +111,7 @@ class ActiveRecord
                 }
             }
         }
+        $this->_source = self::AR_SOURCE_NEW;
     }
 
     /**
@@ -114,11 +120,11 @@ class ActiveRecord
     public static function getStaticInstance()
     {
         $className = static::class;
-        if (empty(self::$staticInstancesPool[$className])) {
+        if (empty(self::$_staticInstancesPool[$className])) {
             $instance = new $className;
-            self::$staticInstancesPool[$className] = $instance;
+            self::$_staticInstancesPool[$className] = $instance;
         }
-        return self::$staticInstancesPool[$className];
+        return self::$_staticInstancesPool[$className];
     }
 
     protected function initConnection()
@@ -128,8 +134,8 @@ class ActiveRecord
         }
         $connection = $this->getConnection();
 
-        if (empty(self::$tableColumnMetas[$this->connectionName.$this->table])) {
-            self::$tableColumnMetas[$this->connectionName.$this->table] = $connection->getTableColumns($this->table);
+        if (empty(self::$_tableColumnMetas[$this->connectionName.$this->table])) {
+            self::$_tableColumnMetas[$this->connectionName.$this->table] = $connection->getTableColumns($this->table);
         }
     }
 
@@ -196,7 +202,7 @@ class ActiveRecord
 
     protected function _getColumnMetas()
     {
-        return self::$tableColumnMetas[$this->connectionName.$this->table];
+        return self::$_tableColumnMetas[$this->connectionName.$this->table];
     }
 
     public function orderBy($orderBy)
@@ -393,8 +399,11 @@ class ActiveRecord
 
     public function save()
     {
-        $connection = $this->getConnection();
-        return $connection->insert($this->table, $this, array_keys($this->_getColumnMetas()), true);
+        if ($this->_source == self::AR_SOURCE_FETCH) {
+            $this->update();
+        } else {
+            $this->insert();
+        }
     }
 
     public function replace()
@@ -454,7 +463,7 @@ class ActiveRecord
 
     protected function getColumnType($columnName)
     {
-        $columnNames = self::$tableColumnMetas[$this->connectionName.$this->table];
+        $columnNames = self::$_tableColumnMetas[$this->connectionName.$this->table];
         if (isset($columnNames[$columnName])) {
             return $columnNames[$columnName][0];
         }
@@ -464,7 +473,7 @@ class ActiveRecord
 
     public function getColumnDefaultValue($columnName)
     {
-        $columnNames = self::$tableColumnMetas[$this->connectionName.$this->table];
+        $columnNames = self::$_tableColumnMetas[$this->connectionName.$this->table];
         if (isset($columnNames[$columnName])) {
             return $columnNames[$columnName][1];
         }
@@ -520,12 +529,12 @@ class ActiveRecord
 
     public function getCacheKey($suffix = false)
     {
-        if (empty($this->baseCacheKey)) {
+        if (empty($this->_baseCacheKey)) {
             $projectKey = ZConfig::get('project_name', '');
-            $this->baseCacheKey = $projectKey.str_replace('\\', '_', $this->className);
+            $this->_baseCacheKey = $projectKey.str_replace('\\', '_', $this->className);
         }
 
-        $cacheKey = $this->baseCacheKey;
+        $cacheKey = $this->_baseCacheKey;
         if($suffix) {
             if (\is_array($suffix)) {
                 $cacheKey .= json_encode($suffix);
@@ -555,6 +564,11 @@ class ActiveRecord
         }
         $cacheInstance = $this->getCache();
         return $cacheInstance->get($cacheKey);
+    }
+
+    public function setSource($source)
+    {
+        $this->_source = $source;
     }
 
 }

@@ -117,7 +117,7 @@ class Connection
         if (strpos($originType, "INT") !== false) {
             return ActiveRecord::COLUMN_TYPE_INT;
         } else if (strpos($originType, "FLOAT") !== false || strpos($originType, "DOUBLE") !== false
-                    || strpos($originType, "DECIMAL") !== false || strpos($originType, "REAL") !== false) {
+            || strpos($originType, "DECIMAL") !== false || strpos($originType, "REAL") !== false) {
             return ActiveRecord::COLUMN_TYPE_FLOAT;
         } else {
             return ActiveRecord::COLUMN_TYPE_STRING;
@@ -223,11 +223,16 @@ class Connection
         }
 
         $result = $statement->fetchAll();
+        if ($class) {
+            foreach ($result as $record) {
+                $record->setSource(ActiveRecord::AR_SOURCE_FETCH);
+            }
+        }
         $this->end($table, $bindParams, "find");
         return $result;
     }
 
-    public function insert($table, ActiveRecord $model, $fields, $onDuplicate = false)
+    public function insert($table, ActiveRecord $model, $fields)
     {
         $valuedFields = [];
         foreach ($fields as $field) {
@@ -241,9 +246,6 @@ class Connection
         $strValues = ':' . implode(', :', $fields);
 
         $query = "INSERT INTO `{$this->dbName}`.`{$table}` ({$strFields}) VALUES ({$strValues})";
-        if ($onDuplicate) {
-            $query .= " ON DUPLICATE KEY UPDATE";
-        }
         $this->lastSql = $query;
         $this->begin($table, "insert");
 
@@ -282,6 +284,7 @@ class Connection
         $this->end($table, $params, "batchInsert");
         return $statement->rowCount();
     }
+
 
     public function update($table, $fields, $params, $where, $change = false)
     {
