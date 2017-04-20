@@ -400,9 +400,9 @@ class ActiveRecord
     public function save()
     {
         if ($this->_source == self::AR_SOURCE_FETCH) {
-            $this->update();
+            return $this->update();
         } else {
-            $this->insert();
+            return $this->insert();
         }
     }
 
