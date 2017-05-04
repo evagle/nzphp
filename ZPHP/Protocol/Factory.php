@@ -11,10 +11,11 @@ class Factory
 {
     public static function getInstance($adapter = 'Http')
     {
-        if (is_file(__DIR__ . DS . 'Adapter' . DS . $adapter . '.php')) {
+        $filename = __DIR__ . DS . 'Adapter' . DS . $adapter . '.php';
+        if (is_file($filename)) {
             $className = __NAMESPACE__ . "\\Adapter\\{$adapter}";
         } else {
-            $className = $adapter;
+            throw new \Exception('file not found: '.$filename);
         }
         return CFactory::getInstance($className);
     }
