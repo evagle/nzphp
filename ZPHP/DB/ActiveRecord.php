@@ -321,7 +321,7 @@ class ActiveRecord
         }
 
         $params = [];
-        if (is_array($fields[0]) && count($fields[0]) == 3) {
+        if (isset($fields[0]) && is_array($fields[0]) && count($fields[0]) == 3) {
             $whereComponents = [];
             foreach ($fields as $item) {
                 $item = array_map(function($var){
