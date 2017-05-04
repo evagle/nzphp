@@ -37,7 +37,7 @@ class GzHttp implements IProtocol
         if ($encoding == "gzip") {
             $rawBody = file_get_contents('php://input');
             $decodedBody = gzdecode($rawBody);
-            $params = [];
+            $params = $_GET;
             parse_str($decodedBody, $params);
             if (!empty($params)) {
                 $data = $params;
