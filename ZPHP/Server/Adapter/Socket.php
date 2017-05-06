@@ -23,8 +23,8 @@ class Socket implements IServer
         }
         $socket = SFactory::getInstance($config['adapter'], $config);
         if(method_exists($socket, 'setCallbackHandler')) {
-            $client = CFactory::getInstance($config['client_class']);
-            $socket->setCallbackHandler($client);
+            $callbackHandler = CFactory::getInstance($config['socket_callback_class']);
+            $socket->setCallbackHandler($callbackHandler);
         }
         Request::setProtocol(ZProtocol::getInstance($config['protocol']));
         Request::setLongServer(1);
