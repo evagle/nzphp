@@ -1,6 +1,7 @@
 <?php
 
 namespace ZPHP\Client;
+use ZPHP\Common\Utils;
 use ZPHP\Socket\Callback\SwooleRpcServer;
 
 /**
@@ -382,7 +383,8 @@ class RPC
         if (empty($this->servers)) {
             throw new \Exception("servers config empty.");
         }
-        return Tool::getServer($this->servers);
+        $index = mt_rand(0, count($this->servers));
+        return $this->servers[$index];
     }
 
     /**
@@ -410,7 +412,7 @@ class RPC
      * @param $callback
      * @return RPC_Result
      */
-    function task($function, $params = array(), $callback = null)
+    function call($function, $params = array(), $callback = null)
     {
         $retObj = new RPC_Result($this);
         $send = array('call' => $function, 'params' => $params);
@@ -428,7 +430,7 @@ class RPC
      */
     function ping()
     {
-        return $this->task('PING')->getResult() === 'PONG';
+        return $this->call('PING')->getResult() === 'PONG';
     }
 
     /**
@@ -520,7 +522,7 @@ class RPC
                 break;
             }
             //去掉重复的socket
-            Tool::arrayUnique($read);
+            Utils::uniqueArray($read);
             //等待可读事件
             $n = $this->select($read, $write, $error, $timeout);
             if ($n > 0) {

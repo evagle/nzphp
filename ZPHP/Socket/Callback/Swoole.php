@@ -15,6 +15,9 @@ abstract class Swoole implements ISwooleCallback
 
     protected $protocol;
 
+    /**
+     * @var \swoole_server
+     */
     protected $server;
 
     /**

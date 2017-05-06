@@ -67,7 +67,7 @@ class SwooleRpcServer extends Swoole
     protected $verifyUser       = false;
 
 
-    function onTimer($serv, $interval)
+    function onTimer($server, $interval)
     {
         ZLog::info('rpc', ["Timer[$interval] call"]);
     }
@@ -214,7 +214,7 @@ class SwooleRpcServer extends Swoole
         {
             $body = gzencode($body);
         }
-        return pack(RPCServer::HEADER_PACK, strlen($body), $type, $uid, $serid) . $body;
+        return pack(SwooleRpcServer::HEADER_PACK, strlen($body), $type, $uid, $serid) . $body;
     }
 
     /**
