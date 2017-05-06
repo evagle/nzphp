@@ -22,9 +22,9 @@ class Socket implements IServer
             throw new \Exception("socket config empty");
         }
         $socket = SFactory::getInstance($config['adapter'], $config);
-        if(method_exists($socket, 'setClient')) {
+        if(method_exists($socket, 'setCallbackHandler')) {
             $client = CFactory::getInstance($config['client_class']);
-            $socket->setClient($client);
+            $socket->setCallbackHandler($client);
         }
         Request::setServer(ZProtocol::getInstance(ZConfig::getField('socket', 'protocol')));
         Request::setLongServer(1);

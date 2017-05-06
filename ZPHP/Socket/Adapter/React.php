@@ -15,7 +15,7 @@ use React\EventLoop\Factory as eventLoop,
 
 class React implements IServer
 {
-    private $client;
+    private $callbackHandler;
     private $config;
     private $serv;
     private $loop;
@@ -29,9 +29,9 @@ class React implements IServer
         $this->config = $config;
     }
 
-    public function setClient($client)
+    public function setCallbackHandler($callbackHandler)
     {
-        $this->client = $client;
+        $this->callbackHandler = $callbackHandler;
     }
 
     public function run()
@@ -42,20 +42,20 @@ class React implements IServer
             }
         }
 
-        $client = $this->client;
-        $client->onStart($this);
-        $this->serv->on('connection', function ($conn) use ($client) {
-            $client->onConnect($conn);
-            $conn->on('data', function ($datas) use ($conn, $client) {
-                $client->onReceive($conn, $datas);
+        $callbackHandler = $this->callbackHandler;
+        $callbackHandler->onStart($this);
+        $this->serv->on('connection', function ($conn) use ($callbackHandler) {
+            $callbackHandler->onConnect($conn);
+            $conn->on('data', function ($datas) use ($conn, $callbackHandler) {
+                $callbackHandler->onReceive($conn, $datas);
             });
 
-            $conn->on('end', function () use ($conn, $client) {
+            $conn->on('end', function () use ($conn, $callbackHandler) {
                 $conn->end();
             });
 
-            $conn->on('close', function () use ($client, $conn) {
-                $client->onClose($conn);
+            $conn->on('close', function () use ($conn, $callbackHandler) {
+                $callbackHandler->onClose($conn);
             });
         });
         $this->serv->listen($this->config['port'], $this->config['host']);
@@ -68,7 +68,7 @@ class React implements IServer
         if (($pid1 = pcntl_fork()) === 0) { //子进程
             $pid = posix_getpid();
             $this->pids[$pid] = 0;
-            $this->client->onWorkerStart();
+            $this->callbackHandler->onWorkerStart();
             exit();
         }
     }

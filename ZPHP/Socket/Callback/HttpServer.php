@@ -18,8 +18,7 @@ abstract class HttpServer implements ICallback
 {
 
     private $cache;
-    private $_route;
-    public $serv;
+    public $server;
     private $mimes = array();
 
     abstract public function onSend($fd, $data);
@@ -120,7 +119,7 @@ abstract class HttpServer implements ICallback
         //echo "WorkerStart[$worker_id]|pid=" . posix_getpid() . ".\n";
         $config = ZConfig::getField('cache', 'locale');
         $this->cache = ZCache::getInstance($config['adapter'], $config);
-        $this->serv = $params[0];
+        $this->server = $params[0];
         if(is_file(__DIR__.DS.'Mimes.php')) {
             $mimes = include(__DIR__.DS.'Mimes.php');
             $this->mimes = array_flip($mimes);

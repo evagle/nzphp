@@ -15,7 +15,7 @@ abstract class Swoole implements ISwooleCallback
 
     protected $protocol;
 
-    protected $serv;
+    protected $server;
 
     /**
      * @throws \Exception
@@ -201,5 +201,9 @@ abstract class Swoole implements ISwooleCallback
 
     }
 
+    public function setServer(\swoole_server $server)
+    {
+        $this->server = $server;
+    }
 
 }

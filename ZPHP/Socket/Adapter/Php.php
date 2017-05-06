@@ -11,7 +11,7 @@ use ZPHP\Socket\IServer;
 
 class Php implements IServer
 {
-    public $client;
+    public $callbackHandler;
     private $config;
     public $timeout;
     public $buffer_size = 8192;
@@ -37,10 +37,10 @@ class Php implements IServer
         $this->server_event = \event_new();
     }
 
-    public function setClient($client)
+    public function setCallbackHandler($callbackHandler)
     {
-        $this->client = $client;
-        $this->client->server = $this;
+        $this->callbackHandler = $callbackHandler;
+        $this->callbackHandler->server = $this;
     }
 
     private function create($uri, $block = 0)
@@ -80,7 +80,7 @@ class Php implements IServer
         \event_set($this->server_event, $this->server_sock, EV_READ | EV_PERSIST, __CLASS__ . '::server_handle_connect', $this);
         \event_base_set($this->server_event, $this->base_event);
         \event_add($this->server_event);
-        $this->client->onStart();
+        $this->callbackHandler->onStart();
         \event_base_loop($this->base_event);
     }
 
@@ -135,7 +135,7 @@ class Php implements IServer
         $this->_closeSocket($this->server_sock, $this->server_event);
         //关闭事件循环
         \event_base_loopexit($this->base_event);
-        $this->client->onShutdown();
+        $this->callbackHandler->onShutdown();
     }
 
     private function _closeSocket($socket, $event = null)
@@ -152,7 +152,7 @@ class Php implements IServer
     {
         $this->_closeSocket($this->client_sock[$client_id], $this->client_event[$client_id]);
         unset($this->client_sock[$client_id], $this->client_event[$client_id]);
-        $this->client->onClose($client_id);
+        $this->callbackHandler->onClose($client_id);
         $this->client_num--;
     }
 

@@ -9,7 +9,6 @@ namespace ZPHP\Common;
 
 class Utils
 {
-
     public static function isAjax()
     {
         if (!empty($_REQUEST['ajax'])

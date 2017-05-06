@@ -51,4 +51,6 @@ interface ISwooleCallback
         需要使用kill -15来发送SIGTREM信号到主进程才能按照正常的流程终止
 	 */
     public function onShutdown(\swoole_server $server);
+
+    public function setServer(\swoole_server $server);
 }

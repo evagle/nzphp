@@ -10,7 +10,7 @@ interface IServer
 	/**
 	 * 设置socket回调类
 	 */
-    function setClient($client);
+    function setCallbackHandler($callbackHandler);
 
     /**
      * 运行socket服务
