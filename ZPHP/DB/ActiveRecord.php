@@ -360,13 +360,13 @@ class ActiveRecord
      */
     public function findWhere($whereCondition, $assoc = false, $columns = "*", $orderBy = "")
     {
-        if (empty($where)) {
+        if (empty($whereCondition)) {
             throw new \Exception('where condition is empty!');
         }
         if (!empty($orderBy)) {
             $this->_orderBy = $orderBy;
         }
-        $cacheKey = $this->getCacheKey($where.$this->_orderBy."_".$this->_limit);
+        $cacheKey = $this->getCacheKey(json_encode($whereCondition).$this->_orderBy."_".$this->_limit);
         $data = $this->getFromCache($cacheKey);
         if ($data) {
             return $data;
