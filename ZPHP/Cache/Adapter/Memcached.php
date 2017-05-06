@@ -6,8 +6,7 @@
 
 
 namespace ZPHP\Cache\Adapter;
-use ZPHP\Cache\ICache,
-    ZPHP\Manager;
+use ZPHP\Cache\ICache;
 
 class Memcached implements ICache
 {
@@ -20,7 +19,7 @@ class Memcached implements ICache
 
     public function __construct($config)
     {
-        $this->memcached = Manager\Memcached::getInstance($config);
+        $this->memcached = \ZPHP\DB\Memcached\Memcached::getInstance($config);
     }
 
     public function enable()

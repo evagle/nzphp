@@ -5,7 +5,8 @@
  */
 
 
-namespace ZPHP\Manager;
+namespace ZPHP\DB\Memcached;
+
 class Memcached
 {
     private static $instances;
