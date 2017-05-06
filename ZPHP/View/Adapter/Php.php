@@ -25,7 +25,7 @@ class Php extends Base
         $tplPath = ZPHP\Common\ZPaths::getPath('views_path');
 
         if (empty($this->tplFile)) {
-            $fileName = $tplPath . ZPHP\Protocol\Request::getTplFile();
+            $fileName = $tplPath . ZPHP\Core\Request::getTplFile();
         } else {
             $fileName = $tplPath . $this->tplFile;
         }
@@ -36,7 +36,7 @@ class Php extends Base
         if (!empty($this->model)) {
             \extract($this->model);
         }
-        if (ZPHP\Protocol\Request::isLongServer()) {
+        if (ZPHP\Core\Request::isLongServer()) {
             \ob_start();
             include "{$fileName}";
             $content = ob_get_contents();

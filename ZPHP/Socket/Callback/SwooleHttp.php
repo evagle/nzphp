@@ -18,13 +18,13 @@ abstract class SwooleHttp extends Swoole
     public function onWorkerStart(\swoole_server $server, $workerId)
     {
         parent::onWorkerStart($server, $workerId);
-        Protocol\Request::setHttpServer(1);
+        Core\Request::setHttpServer(1);
     }
 
     public function doRequest($request, $response)
     {
-        Protocol\Request::setRequest($request);
-        Protocol\Response::setResponse($response);
+        Core\Request::setRequest($request);
+        Core\Response::setResponse($response);
         $this->onRequest($request, $response);
     }
 

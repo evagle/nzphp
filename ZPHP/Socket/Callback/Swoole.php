@@ -102,7 +102,7 @@ abstract class Swoole implements ISwooleCallback
             opcache_reset();
         }
 
-        Protocol\Request::setSocket($server);
+        Core\Request::setSocket($server);
     }
 
     public function onWorkerStop(\swoole_server $server, $workerId)
@@ -133,7 +133,7 @@ abstract class Swoole implements ISwooleCallback
 
     public function doReceive(\swoole_server $server, $fd, $from_id, $data)
     {
-        Protocol\Request::setFd($fd);
+        Core\Request::setFd($fd);
         $this->onReceive($server, $fd, $from_id, $data);
     }
 

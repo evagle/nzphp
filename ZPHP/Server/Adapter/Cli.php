@@ -15,8 +15,8 @@ class Cli implements IServer
     public function run()
     {
         $protocol = Protocol\Factory::getInstance('Cli');
-        Protocol\Request::setProtocol($protocol);
-        Protocol\Request::parse($_SERVER['argv']);
+        Core\Request::setProtocol($protocol);
+        Core\Request::parse($_SERVER['argv']);
         return Core\Route::route();
     }
 
