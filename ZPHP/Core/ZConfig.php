@@ -8,7 +8,6 @@
 namespace ZPHP\Core;
 
 use ZPHP\Common\Dir;
-use ZPHP\Protocol\Request;
 
 class ZConfig
 {

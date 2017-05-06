@@ -6,7 +6,7 @@
 
 
 namespace ZPHP\Server\Adapter;
-use ZPHP\Protocol\Request;
+use ZPHP\Core\Request;
 use ZPHP\Protocol\Factory as ZProtocol;
 use ZPHP\Socket\Factory as SFactory;
 use ZPHP\Core\ZConfig;

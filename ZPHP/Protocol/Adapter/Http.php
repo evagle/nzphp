@@ -9,7 +9,7 @@ namespace ZPHP\Protocol\Adapter;
 use ZPHP\Core\ZConfig;
 use ZPHP\Protocol\IProtocol;
 use ZPHP\Common\Route as ZRoute;
-use ZPHP\Protocol\Request;
+use ZPHP\Core\Request;
 
 class Http implements IProtocol
 {

@@ -6,8 +6,6 @@
  */
 namespace ZPHP\Core;
 use ZPHP\Controller\IController;
-use ZPHP\Protocol\Request;
-use ZPHP\Protocol\Response;
 use ZPHP\Session\Swoole as SSESSION;
 
 class Route

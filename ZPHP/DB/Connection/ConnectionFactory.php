@@ -6,7 +6,8 @@
 
 
 namespace ZPHP\DB\Connection;
-use ZPHP\Protocol\Request;
+
+use ZPHP\Core\Request;
 
 class ConnectionFactory
 {

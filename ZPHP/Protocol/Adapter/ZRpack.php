@@ -11,7 +11,7 @@ use ZPHP\Common\MessagePacker;
 use ZPHP\Protocol\IProtocol;
 use ZPHP\Cache\ZCache as ZCache;
 use ZPHP\Common\Route as ZRoute;
-use ZPHP\Protocol\Request;
+use ZPHP\Core\Request;
 
 class ZRpack implements IProtocol
 {

@@ -1,7 +1,7 @@
 <?php
 
 namespace ZPHP\Common;
-use ZPHP\Protocol\Request;
+use ZPHP\Core\Request;
 use ZPHP\ZPHP,
     ZPHP\Core\ZConfig,
     ZPHP\Common\ZLog,

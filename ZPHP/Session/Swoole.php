@@ -8,8 +8,8 @@
 
 namespace ZPHP\Session;
 use ZPHP\Core\ZConfig as ZConfig;
-use ZPHP\Protocol\Request;
-use ZPHP\Protocol\Response;
+use ZPHP\Core\Request;
+use ZPHP\Core\Response;
 
 
 class Swoole

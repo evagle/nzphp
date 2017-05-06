@@ -7,9 +7,9 @@
 
 namespace ZPHP\DB\Connection;
 use ZPHP\Common\ZLog;
+use ZPHP\Core\Request;
 use ZPHP\Core\ZConfig;
 use ZPHP\DB\ActiveRecord;
-use ZPHP\Protocol\Request;
 
 class Connection
 {

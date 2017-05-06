@@ -9,7 +9,7 @@ namespace ZPHP\Protocol\Adapter;
 use ZPHP\Core\ZConfig;
 use ZPHP\Common\MessagePacker;
 use ZPHP\Protocol\IProtocol;
-use ZPHP\Protocol\Request;
+use ZPHP\Core\Request;
 
 class Zpack implements IProtocol
 {

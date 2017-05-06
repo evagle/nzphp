@@ -5,7 +5,7 @@
  */
 
 
-namespace ZPHP\Protocol;
+namespace ZPHP\Core;
 use ZPHP\View\Factory as ZView;
 
 class Response

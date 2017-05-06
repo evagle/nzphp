@@ -8,7 +8,7 @@ namespace ZPHP;
 
 use ZPHP\Core\AutoLoader;
 use ZPHP\Common\ZPaths;
-use ZPHP\Protocol\Response;
+use ZPHP\Core\Response;
 use ZPHP\View,
     ZPHP\Core\ZConfig,
     ZPHP\Common\Debug,

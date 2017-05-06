@@ -9,7 +9,7 @@ namespace ZPHP\Protocol\Adapter;
 
 use ZPHP\Core;
 use ZPHP\Core\ZConfig;
-use ZPHP\Protocol\Request;
+use ZPHP\Core\Request;
 use ZPHP\View;
 use ZPHP\Protocol\IProtocol;
 

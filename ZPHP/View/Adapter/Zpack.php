@@ -7,8 +7,8 @@
 
 
 namespace ZPHP\View\Adapter;
-use ZPHP\Protocol\Request;
-use ZPHP\Protocol\Response;
+use ZPHP\Core\Request;
+use ZPHP\Core\Response;
 use ZPHP\View\Base,
     ZPHP\Core\ZConfig,
     ZPHP\Common\MessagePacker;;
