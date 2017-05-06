@@ -26,7 +26,7 @@ class Socket implements IServer
             $client = CFactory::getInstance($config['client_class']);
             $socket->setCallbackHandler($client);
         }
-        Request::setServer(ZProtocol::getInstance(ZConfig::getField('socket', 'protocol')));
+        Request::setProtocol(ZProtocol::getInstance($config['protocol']));
         Request::setLongServer(1);
         Request::setHttpServer(0);
         $socket->run();

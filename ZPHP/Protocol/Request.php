@@ -29,7 +29,7 @@ class Request
     /**
      * @var IProtocol
      */
-    private static $_server;
+    private static $_protocol;
 
     public static function init($ctrl, $method, array $params, $viewMode=null)
     {
@@ -133,19 +133,19 @@ class Request
         return false;
     }
 
-    public static function setServer($server)
+    public static function setProtocol($server)
     {
-        self::$_server = $server;
+        self::$_protocol = $server;
     }
 
-    public static function getServer()
+    public static function getProtocol()
     {
-        return self::$_server;
+        return self::$_protocol;
     }
 
     public static function parse($data)
     {
-        return self::$_server->parse($data);
+        return self::$_protocol->parse($data);
     }
 
     public static function setLongServer($tag=1)
