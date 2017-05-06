@@ -19,6 +19,7 @@ class Swoole implements IServer
     const TYPE_UDP = 'udp';
     const TYPE_HTTP = 'http';
     const TYPE_WEBSOCKET = 'websocket';
+    const TYPE_RPC = 'rpc';
 
     public function __construct(array $config)
     {
@@ -61,27 +62,32 @@ class Swoole implements IServer
     public function setCallbackHandler($callbackHandler)
     {
         if(!is_object($callbackHandler)) {
-            throw new \Exception('client must object');
+            throw new \Exception('CallbackHandler must object');
         }
         switch($this->config['server_type']) {
             case self::TYPE_WEBSOCKET:
                 if (!($callbackHandler instanceof Callback\SwooleWebSocket)) {
-                    throw new \Exception('client must instanceof ZPHP\Socket\Callback\SwooleWebSocket');
+                    throw new \Exception('CallbackHandler must instanceof ZPHP\Socket\Callback\SwooleWebSocket');
                 }
                 break;
             case self::TYPE_HTTP:
                 if (!($callbackHandler instanceof Callback\SwooleHttp)) {
-                    throw new \Exception('client must instanceof ZPHP\Socket\Callback\SwooleHttp');
+                    throw new \Exception('CallbackHandler must instanceof ZPHP\Socket\Callback\SwooleHttp');
                 }
                 break;
             case self::TYPE_UDP:
                 if (!($callbackHandler instanceof Callback\SwooleUdp)) {
-                    throw new \Exception('client must instanceof ZPHP\Socket\Callback\SwooleUdp');
+                    throw new \Exception('CallbackHandler must instanceof ZPHP\Socket\Callback\SwooleUdp');
+                }
+                break;
+            case self::TYPE_RPC:
+                if (!($callbackHandler instanceof Callback\SwooleRpcServer)) {
+                    throw new \Exception('CallbackHandler must instanceof ZPHP\Socket\Callback\SwooleRpcServer');
                 }
                 break;
             default:
                 if (!($callbackHandler instanceof Callback\Swoole)) {
-                    throw new \Exception('client must instanceof ZPHP\Socket\Callback\Swoole');
+                    throw new \Exception('CallbackHandler must instanceof ZPHP\Socket\Callback\Swoole');
                 }
                 break;
         }
