@@ -323,12 +323,12 @@ class ActiveRecord
         $params = [];
         if (isset($fields[0]) && is_array($fields[0]) && count($fields[0]) == 3) {
             $whereComponents = [];
-            foreach ($fields as $item) {
+            foreach ($fields as $i => $item) {
                 $item = array_map(function($var){
                     return filter_var($var, FILTER_SANITIZE_MAGIC_QUOTES);
                 }, $item);
-                $whereComponents[] = "`{$item[0]}` {$item[1]} :where_{$item[0]}";
-                $params[":where_{$item[0]}"] = $item[2];
+                $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
+                $params[":w_{$i}_{$item[0]}"] = $item[2];
             }
             $where = implode(" and ", $whereComponents);
         } else {
@@ -427,12 +427,12 @@ class ActiveRecord
 
         if (!empty($whereCondition)) {
             $whereComponents = [];
-            foreach ($whereCondition as $item) {
+            foreach ($whereCondition as $i => $item) {
                 $item = array_map(function($var){
                     return filter_var(trim($var), FILTER_SANITIZE_MAGIC_QUOTES);
                 }, $item);
-                $whereComponents[] = "`{$item[0]}` {$item[1]} :where_{$item[0]}";
-                $params[":where_{$item[0]}"] = $item[2];
+                $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
+                $params[":w_{$i}_{$item[0]}"] = $item[2];
             }
             $where = implode(' and ', $whereComponents);
         } else {
