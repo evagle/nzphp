@@ -187,10 +187,12 @@ class ActiveRecord
         return array_keys(self::getStaticInstance()->_getColumnMetas());
     }
 
-    public static function rowsCount($where = "1")
+    public static function rowsCount($whereParams = [])
     {
         $instance = self::getStaticInstance();
         $connection = $instance->getConnection();
+        $where = $instance->toWhereString($whereParams);
+        $where = empty($where) ? "1" : $where;
         return $connection->rowsCount($instance->table, $instance->primary_key, $where);
     }
 
@@ -298,7 +300,9 @@ class ActiveRecord
     }
 
     /**
-     * @param $fields: ['k1' => 1, 'k2' => "v"] or [['id', ">=", 1], ["name", "is", "null"]]
+     * @param $fields :支持两种格式, 数组形式和kv形式
+     * 1. [['id', ">=", 1], ["name", "is", "null"]]
+     * 2. ['id' => 1, "name" => "x"]
      * @param bool $assoc
      * @param string $columns
      * @param string $orderBy
@@ -321,26 +325,7 @@ class ActiveRecord
         }
 
         $params = [];
-        if (isset($fields[0]) && is_array($fields[0]) && count($fields[0]) == 3) {
-            $whereComponents = [];
-            foreach ($fields as $i => $item) {
-                $item = array_map(function($var){
-                    return filter_var($var, FILTER_SANITIZE_MAGIC_QUOTES);
-                }, $item);
-                $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
-                $params[":w_{$i}_{$item[0]}"] = $item[2];
-            }
-            $where = implode(" and ", $whereComponents);
-        } else {
-            $conditions = [];
-            foreach ($fields as $k => $v) {
-                $k = filter_var($k, FILTER_SANITIZE_MAGIC_QUOTES);
-                $v = filter_var($v, FILTER_SANITIZE_MAGIC_QUOTES);
-                $conditions[] = "`{$k}` = ?";
-                $params[] = $v;
-            }
-            $where = implode(" and ", $conditions);
-        }
+        $where = $this->toWhereString($fields);
 
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
@@ -351,37 +336,31 @@ class ActiveRecord
     }
 
     /**
-     * @param $whereCondition : [['id', ">=", 1], ["name", "is", "null"]]
+     * @param $whereParams :支持两种格式, 数组形式和kv形式
+     * 1. [['id', ">=", 1], ["name", "is", "null"]]
+     * 2. ['id' => 1, "name" => "x"]
      * @param bool $assoc
      * @param string $columns
      * @param string $orderBy
      * @return bool|mixed
      * @throws \Exception
      */
-    public function findWhere($whereCondition, $assoc = false, $columns = "*", $orderBy = "")
+    public function findWhere($whereParams, $assoc = false, $columns = "*", $orderBy = "")
     {
-        if (empty($whereCondition)) {
+        if (empty($whereParams)) {
             throw new \Exception('where condition is empty!');
         }
         if (!empty($orderBy)) {
             $this->_orderBy = $orderBy;
         }
-        $cacheKey = $this->getCacheKey(json_encode($whereCondition).$this->_orderBy."_".$this->_limit);
+        $cacheKey = $this->getCacheKey(json_encode($whereParams).$this->_orderBy."_".$this->_limit);
         $data = $this->getFromCache($cacheKey);
         if ($data) {
             return $data;
         }
 
         $params = [];
-        $whereComponents = [];
-        foreach ($whereCondition as $i => $item) {
-            $item = array_map(function($var){
-                return filter_var($var, FILTER_SANITIZE_MAGIC_QUOTES);
-            }, $item);
-            $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
-            $params[":w_{$i}_{$item[0]}"] = $item[2];
-        }
-        $where = implode(' and ', $whereComponents);
+        $where = $this->toWhereString($whereParams);
 
         $connection = $this->getConnection();
         $className = $assoc ? "" : $this->className;
@@ -413,10 +392,12 @@ class ActiveRecord
     }
 
     /**
-     * @param array $whereCondition: [['id', "=", $id], ['status' , "<>",  1]]
+     * @param $whereParams :支持两种格式, 数组形式和kv形式
+     * 1. [['id', ">=", 1], ["name", "is", "null"]]
+     * 2. ['id' => 1, "name" => "x"]
      * @return int
      */
-    public function update($whereCondition = [])
+    public function update($whereParams = [])
     {
         $connection = $this->getConnection();
         $params = array();
@@ -425,16 +406,8 @@ class ActiveRecord
             $params[$field] = $this->getValueForDb($field);
         }
 
-        if (!empty($whereCondition)) {
-            $whereComponents = [];
-            foreach ($whereCondition as $i => $item) {
-                $item = array_map(function($var){
-                    return filter_var(trim($var), FILTER_SANITIZE_MAGIC_QUOTES);
-                }, $item);
-                $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
-                $params[":w_{$i}_{$item[0]}"] = $item[2];
-            }
-            $where = implode(' and ', $whereComponents);
+        if (!empty($whereParams)) {
+            $where = $this->toWhereString($whereParams);
         } else {
             $where = "`{$this->primary_key}` = :_primary_key_";
             $key = $this->primary_key;
@@ -496,6 +469,33 @@ class ActiveRecord
                 break;
         }
         return "";
+    }
+
+    protected function toWhereString($whereParams)
+    {
+        if (empty($whereParams)) {
+            return "";
+        }
+        if (isset($whereParams[0]) && is_array($whereParams[0]) && count($whereParams[0]) == 3) {
+            $whereComponents = [];
+            foreach ($whereParams as $i => $item) {
+                $item = array_map(function ($var) {
+                    return filter_var($var, FILTER_SANITIZE_MAGIC_QUOTES);
+                }, $item);
+                $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
+                $params[":w_{$i}_{$item[0]}"] = $item[2];
+            }
+            return implode(' and ', $whereComponents);
+        } else {
+            $conditions = [];
+            foreach ($whereParams as $k => $v) {
+                $k = filter_var($k, FILTER_SANITIZE_MAGIC_QUOTES);
+                $v = filter_var($v, FILTER_SANITIZE_MAGIC_QUOTES);
+                $conditions[] = "`{$k}` = ?";
+                $params[] = $v;
+            }
+            return implode(" and ", $conditions);
+        }
     }
 
     public function flush()

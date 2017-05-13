@@ -6,9 +6,9 @@ use ZPHP\Socket\Callback\SwooleRpcServer;
 
 /**
  * RPC客户端
- * 参考韩天峰大师的：swoole_framework
+ * 参考韩大师的：swoole_framework
  */
-class RPC
+class SwooleRpcClient
 {
     const OK = 0;
 
@@ -80,7 +80,7 @@ class RPC
     /**
      * 获取SOA服务实例
      * @param $id
-     * @return RPC
+     * @return SwooleRpcClient
      */
     static function getInstance($id = null)
     {
@@ -343,15 +343,15 @@ class RPC
 
     /**
      * @param $config
-     * @throws InvalidParam
+     * @throws \Exception
      */
     static protected function formatServerConfig(&$config)
     {
         if (empty($config['host'])) {
-            throw new InvalidParam("require 'host' option.");
+            throw new \Exception("server config require 'host' option.");
         }
         if (empty($config['port'])) {
-            throw new InvalidParam("require 'port' option.");
+            throw new \Exception("server config require 'port' option.");
         }
         if (empty($config['status'])) {
             $config['status'] = 'online';
