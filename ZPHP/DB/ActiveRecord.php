@@ -191,9 +191,9 @@ class ActiveRecord
     {
         $instance = self::getStaticInstance();
         $connection = $instance->getConnection();
-        $where = $instance->toWhereString($whereParams);
+        list($where, $bindParams) = $instance->toWhereString($whereParams);
         $where = empty($where) ? "1" : $where;
-        return $connection->rowsCount($instance->table, $instance->primary_key, $where);
+        return $connection->rowsCount($instance->table, $instance->primary_key, $where, $bindParams);
     }
 
     public static function executeQuery($query)
@@ -324,8 +324,7 @@ class ActiveRecord
             return $data;
         }
 
-        $params = [];
-        $where = $this->toWhereString($fields);
+        list($where, $params) = $this->toWhereString($fields);
 
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
@@ -359,8 +358,7 @@ class ActiveRecord
             return $data;
         }
 
-        $params = [];
-        $where = $this->toWhereString($whereParams);
+        list($where, $params) = $this->toWhereString($whereParams);
 
         $connection = $this->getConnection();
         $className = $assoc ? "" : $this->className;
@@ -407,7 +405,8 @@ class ActiveRecord
         }
 
         if (!empty($whereParams)) {
-            $where = $this->toWhereString($whereParams);
+            list($where, $bindParams) = $this->toWhereString($whereParams);
+            $params = array_merge($params, $bindParams);
         } else {
             $where = "`{$this->primary_key}` = :_primary_key_";
             $key = $this->primary_key;
@@ -474,8 +473,9 @@ class ActiveRecord
     protected function toWhereString($whereParams)
     {
         if (empty($whereParams)) {
-            return "";
+            return false;
         }
+        $params = [];
         if (isset($whereParams[0]) && is_array($whereParams[0]) && count($whereParams[0]) == 3) {
             $whereComponents = [];
             foreach ($whereParams as $i => $item) {
@@ -485,16 +485,17 @@ class ActiveRecord
                 $whereComponents[] = "`{$item[0]}` {$item[1]} :w_{$i}_{$item[0]}";
                 $params[":w_{$i}_{$item[0]}"] = $item[2];
             }
-            return implode(' and ', $whereComponents);
+            return [implode(' and ', $whereComponents), $params];
         } else {
             $conditions = [];
             foreach ($whereParams as $k => $v) {
                 $k = filter_var($k, FILTER_SANITIZE_MAGIC_QUOTES);
                 $v = filter_var($v, FILTER_SANITIZE_MAGIC_QUOTES);
-                $conditions[] = "`{$k}` = ?";
-                $params[] = $v;
+                $key = ":w_{$k}";
+                $conditions[] = "`{$k}` = :w_{$k}";
+                $params[$key] = $v;
             }
-            return implode(" and ", $conditions);
+            return [implode(" and ", $conditions), $params];
         }
     }
 

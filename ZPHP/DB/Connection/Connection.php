@@ -373,14 +373,14 @@ class Connection
         return $statement->execute();
     }
 
-    public function rowsCount($table, $primary_key, $where = "1")
+    public function rowsCount($table, $primary_key, $where = "1", $bindParams)
     {
         $query = "SELECT count({$primary_key}) as count FROM `{$this->dbName}`.`{$table}` WHERE {$where}";
         $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
         $this->begin($table, "rowsCount");
 
-        $statement->execute();
+        $statement->execute($bindParams);
         $result = $statement->fetch();
         $this->end($table, null, "rowsCount");
         return $result["count"];
