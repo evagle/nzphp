@@ -204,9 +204,4 @@ abstract class Swoole implements ISwooleCallback
 
     }
 
-    public function setServer(\swoole_server $server)
-    {
-        $this->server = $server;
-    }
-
 }

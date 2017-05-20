@@ -72,7 +72,7 @@ class SwooleRpcServer extends Swoole
         ZLog::info('rpc', ["Timer[$interval] call"]);
     }
 
-    function onReceive(\swoole_server $serv, $fd, $from_id, $data)
+    function onReceive(\swoole_server $server, $fd, $from_id, $data)
     {
         if (!isset($this->_buffer[$fd]) or $this->_buffer[$fd] === '')
         {
@@ -82,7 +82,7 @@ class SwooleRpcServer extends Swoole
                 $n = 0;
                 foreach ($this->_buffer as $k => $v)
                 {
-                    $this->close($k);
+                    $this->close($server, $k);
                     $n++;
                     //清理完毕
                     if ($n >= $this->buffer_clear_num)
@@ -97,14 +97,14 @@ class SwooleRpcServer extends Swoole
             //错误的包头
             if ($header === false)
             {
-                $this->close($fd);
+                $this->close($server, $fd);
             }
             $header['fd'] = $fd;
             $this->_headers[$fd] = $header;
             //长度错误
             if ($header['length'] - self::HEADER_SIZE > $this->packet_maxlen or strlen($data) > $this->packet_maxlen)
             {
-                return $this->sendErrorMessage($fd, self::ERR_TOOBIG);
+                return $this->sendErrorMessage($server, $fd, self::ERR_TOOBIG);
             }
             //加入缓存区
             $this->_buffer[$fd] = substr($data, self::HEADER_SIZE);
@@ -124,7 +124,7 @@ class SwooleRpcServer extends Swoole
         $request = self::decode($this->_buffer[$fd], $this->_headers[$fd]['type']);
         if ($request === false)
         {
-            $this->sendErrorMessage($fd, self::ERR_UNPACK);
+            $this->sendErrorMessage($server, $fd, self::ERR_UNPACK);
         }
         //执行远程调用
         else
@@ -137,10 +137,10 @@ class SwooleRpcServer extends Swoole
                 self::$clientEnv = $request['env'];
             }
             //socket信息
-            self::$clientEnv['_socket'] = $this->server->connection_info($_header['fd']);
+            self::$clientEnv['_socket'] = $server->connection_info($_header['fd']);
             $response = $this->call($request, $_header);
             //发送响应
-            $ret = $this->server->send($fd, self::encode($response, $_header['type'], $_header['uid'], $_header['serid']));
+            $ret = $server->send($fd, self::encode($response, $_header['type'], $_header['uid'], $_header['serid']));
             if ($ret === false)
             {
                 trigger_error("SendToClient failed. params=".var_export($request, true)."\nheaders=".var_export($_header, true), E_USER_WARNING);
@@ -174,9 +174,9 @@ class SwooleRpcServer extends Swoole
         return self::$requestHeader;
     }
 
-    function sendErrorMessage($fd, $errno)
+    function sendErrorMessage(\swoole_server $server, $fd, $errno)
     {
-        return $this->server->send($fd, self::encode(array('errno' => $errno), $this->_headers[$fd]['type']));
+        return $server->send($fd, self::encode(array('errno' => $errno), $this->_headers[$fd]['type']));
     }
 
     /**
@@ -349,9 +349,9 @@ class SwooleRpcServer extends Swoole
      * 关闭连接
      * @param $fd
      */
-    protected function close($fd)
+    protected function close(\swoole_server $server, $fd)
     {
-        $this->server->close($fd);
+        $server->close($fd);
         unset($this->_buffer[$fd], $this->_headers[$fd]);
     }
 

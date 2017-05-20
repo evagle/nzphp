@@ -91,7 +91,6 @@ class Swoole implements IServer
                 }
                 break;
         }
-        $callbackHandler->setServer($this->server);
         $this->callbackHandler = $callbackHandler;
         return true;
     }

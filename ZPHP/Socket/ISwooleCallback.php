@@ -52,5 +52,4 @@ interface ISwooleCallback
 	 */
     public function onShutdown(\swoole_server $server);
 
-    public function setServer(\swoole_server $server);
 }
