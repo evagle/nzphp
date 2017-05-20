@@ -33,7 +33,7 @@ class GzHttp implements IProtocol
         }
 
         // 处理gzip压缩的数据
-        $encoding = $_SERVER['HTTP_CONTENT_ENCODING'];
+        $encoding = isset($_SERVER['HTTP_CONTENT_ENCODING']) ? $_SERVER['HTTP_CONTENT_ENCODING'] : "";
         if ($encoding == "gzip") {
             $rawBody = file_get_contents('php://input');
             $decodedBody = gzdecode($rawBody);
