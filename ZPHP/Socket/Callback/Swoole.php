@@ -14,12 +14,7 @@ abstract class Swoole implements ISwooleCallback
 {
 
     protected $protocol;
-
-    /**
-     * @var \swoole_server
-     */
-    protected $server;
-
+    
     /**
      * @throws \Exception
      * @desc 服务启动，设置进程名及写主进程id
