@@ -270,7 +270,7 @@ class ActiveRecord
             }
             $params = $ids;
             $where =  "`{$this->primary_key}` IN ( " . substr($placeHolderStr, 1) . " ) ";
-            $limit = "limit 0";
+            $limit = "";
         } else {
             $params = [$this->wrapColumnData($this->primary_key, $ids)];
             $where = "`{$this->primary_key}` = ?";

@@ -193,12 +193,12 @@ class Connection
      * @param null $bindParams
      * @param string $fields
      * @param null $orderBy
-     * @param int $limit
+     * @param string $limit
      * @param null $class
      * @return mixed
      * @throws \Exception
      */
-    public function find($table, $where = '1', $bindParams = null, $fields = '*', $orderBy = null, $limit = 0, $class = null)
+    public function find($table, $where = '1', $bindParams = null, $fields = '*', $orderBy = null, $limit = "", $class = null)
     {
         if (empty($table)) {
             throw new \Exception('table name not given');
@@ -209,7 +209,7 @@ class Connection
             $query .= " order by {$orderBy}";
         }
 
-        if ($limit) {
+        if (!empty($limit)) {
             $query .= " " . $limit;
         }
         $statement = $this->pdo->prepare($query);
