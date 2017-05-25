@@ -49,7 +49,7 @@ class Redis implements \SessionHandlerInterface
         if (!empty($data)) {
             $this->redis->setTimeout($sid, $this->gcTime);
         }
-        if (is_null($data)) {
+        if (!is_string($data)) {
             return '';
         }
         return $data;
