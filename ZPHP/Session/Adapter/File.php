@@ -9,7 +9,7 @@ namespace ZPHP\Session\Adapter;
 
 use ZPHP\ZPHP;
 
-class File
+class File implements \SessionHandlerInterface
 {
     private $gcTime = 1800;
     private $config;
@@ -54,15 +54,16 @@ class File
             $content = file_get_contents($this->filename);
             if (strlen($content) < 10) {
                 unlink($this->filename);
-                return false;
+                return '';
             }
             $time = floatval(substr($content, 0, 10));
             if ($time < (time() - $this->gcTime)) {
                 unlink($this->filename);
-                return false;
+                return '';
             }
             return substr($content, 10);
         }
+        return '';
     }
 
     public function write($sid, $data)
@@ -77,9 +78,9 @@ class File
     {
         $this->filename = $this->getFileName($sid);
         if (is_file($this->filename)) {
-            unlink($this->filename);
-            return false;
+            return unlink($this->filename);
         }
+        return true;
     }
 
     private function getPath()

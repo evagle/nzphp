@@ -95,4 +95,10 @@ class Response
         \setrawcookie($key,  $value, $expire, $path, $domain, $secure, $httponly);
     }
 
+    public static function redirect($url, $params, $session = null, $status = null)
+    {
+//        \HttpResponse::redirect($url, $params, $session, $status);
+        \header("Location: ".$url."?".http_build_query($params));
+    }
+
 }

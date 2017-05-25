@@ -49,7 +49,7 @@ class Swoole
             $sid = $request->post[$sessionName];
         }
         if($sid) {
-            $handler = Factory::getInstance($sessionType, $config);
+            $handler = ZSession::getInstance($sessionType, $config);
             $data = $handler->read($sid);
             if(!empty($data)) {
                 $_SESSION = unserialize($data);
@@ -75,7 +75,7 @@ class Swoole
     public static function save()
     {
         if(self::$_sid) {
-            $handler = Factory::getInstance(self::$_sessionType, self::$_config);
+            $handler = ZSession::getInstance(self::$_sessionType, self::$_config);
             if (!isset($_SESSION) || empty($_SESSION)) {  //session清空
                 $handler->destroy(self::$_sid);
             } else {

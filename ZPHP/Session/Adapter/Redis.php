@@ -8,7 +8,7 @@
 namespace ZPHP\Session\Adapter;
 use ZPHP\DB\Redis\RedisFactory;
 
-class Redis
+class Redis implements \SessionHandlerInterface
 {
     private $redis;
     private $gcTime = 1800;
@@ -48,6 +48,9 @@ class Redis
         $data = $this->redis->get($sid);
         if (!empty($data)) {
             $this->redis->setTimeout($sid, $this->gcTime);
+        }
+        if (is_null($data)) {
+            return '';
         }
         return $data;
     }

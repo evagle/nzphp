@@ -4,11 +4,12 @@
  * Date: 13-6-17
  */
 namespace ZPHP\Session;
+use ZPHP\Common\ZLog;
 use ZPHP\Core\Factory as CFactory,
     ZPHP\Core\ZConfig as ZConfig;
 use ZPHP\Core\Request;
 
-class Factory
+class ZSession
 {
     protected static $isStart=false;
     public static function getInstance($adapter = 'Redis', $config=null)
@@ -49,8 +50,6 @@ class Factory
             $httponly = !isset($config['httponly']) ? true : $config['httponly'];
             \session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
 
-
-
             $sessionName = empty($config['session_name']) ? 'ZPHPSESSID' : $config['session_name'];
             \session_name($sessionName);
 
@@ -62,14 +61,8 @@ class Factory
 
             if (!empty($sessionType)) {
                 $handler = self::getInstance($sessionType, $config);
-                \session_set_save_handler(
-                    array($handler, 'open'),
-                    array($handler, 'close'),
-                    array($handler, 'read'),
-                    array($handler, 'write'),
-                    array($handler, 'destroy'),
-                    array($handler, 'gc')
-                );
+                ZLog::info('aaa', ["handler", $sessionType, $config]);
+                \session_set_save_handler($handler, true);
             }
             
             
