@@ -572,4 +572,15 @@ class ActiveRecord
         $this->_source = $source;
     }
 
+    public function toArray()
+    {
+        $columns = self::getColumnNames();
+        $data = [];
+        foreach ($columns as $key) {
+            if (property_exists($this, $key)) {
+                $data[$key] = $this->$key;
+            }
+        }
+        return $data;
+    }
 }
