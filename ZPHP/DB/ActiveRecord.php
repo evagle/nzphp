@@ -270,11 +270,11 @@ class ActiveRecord
             }
             $params = $ids;
             $where =  "`{$this->primary_key}` IN ( " . substr($placeHolderStr, 1) . " ) ";
-            $limit = 0;
+            $limit = "limit 0";
         } else {
             $params = [$this->wrapColumnData($this->primary_key, $ids)];
             $where = "`{$this->primary_key}` = ?";
-            $limit = 1;
+            $limit = "limit 1";
         }
         $className = $assoc ? "" : $this->className;
         $connection = $this->getConnection();
