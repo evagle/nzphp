@@ -16,13 +16,14 @@ class GzHttp implements IProtocol
 {
     /**
      * 直接 parse $_REQUEST
-     * @param $_data
+     * @param $data
      * @return bool
+     * @throws \Exception
      */
     public function parse($data)
     {
-        $ctrlName = ZConfig::get('default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::get('default_method_name', 'main');
+        $ctrlName = "";
+        $methodName = "";
         $apn = ZConfig::get('ctrl_name', 'a');
         $mpn = ZConfig::get('method_name', 'm');
         if (isset($data[$apn])) {
@@ -59,7 +60,9 @@ class GzHttp implements IProtocol
                 }
             }
         }
-
+        if (empty($ctrlName) || empty($methodName)) {
+            throw new \Exception("No router found for path : ".$_SERVER['PATH_INFO']);
+        }
         Request::init($ctrlName, $methodName, $data, ZConfig::get('view_mode', 'Php'));
         return true;
     }

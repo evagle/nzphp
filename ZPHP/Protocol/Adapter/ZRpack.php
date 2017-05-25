@@ -25,8 +25,8 @@ class ZRpack implements IProtocol
      */
     public function parse($_data)
     {
-        $ctrlName = ZConfig::get( 'default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::get( 'default_method_name', 'main');
+        $ctrlName = "";
+        $methodName = "";
         if (empty($this->_cache)) {
             $this->_cache = ZCache::getInstance('Php');
         }
@@ -66,6 +66,9 @@ class ZRpack implements IProtocol
                 //参数优先
                 $data = $data + $routeMap[2];
             }
+        }
+        if (empty($ctrlName) || empty($methodName)) {
+            throw new \Exception("No router found for path : ".$pathinfo);
         }
         Request::init($ctrlName, $methodName, $data, ZConfig::get( 'view_mode', 'Zpack'));
         return true;

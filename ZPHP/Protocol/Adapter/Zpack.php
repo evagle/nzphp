@@ -22,8 +22,8 @@ class Zpack implements IProtocol
      */
     public function parse($_data)
     {
-        $ctrlName = ZConfig::get( 'default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::get( 'default_method_name', 'main');
+        $ctrlName = "";
+        $methodName = "";
         $fd = Request::getFd();
         if (!empty($this->_buffer[$fd])) {
             $_data = $this->_buffer . $_data;
@@ -51,6 +51,9 @@ class Zpack implements IProtocol
         }
         if (isset($params[$mpn])) {
             $methodName = $params[$mpn];
+        }
+        if (empty($ctrlName) || empty($methodName)) {
+            throw new \Exception("No router found, params = ".json_encode($params));
         }
         Request::init($ctrlName, $methodName, $data, ZConfig::get( 'view_mode', 'Zpack'));
         return true;

@@ -15,8 +15,8 @@ class Json implements IProtocol
 {
     public function parse($_data)
     {
-        $ctrlName = ZConfig::get('default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::get('default_method_name', 'main');
+        $ctrlName = "";
+        $methodName = "";
         $data = [];
         if (!empty($_data)) {
             if (is_array($_data)) {
@@ -32,6 +32,9 @@ class Json implements IProtocol
         }
         if (isset($data[$mpn])) {
             $methodName = $data[$mpn];
+        }
+        if (empty($ctrlName) || empty($methodName)) {
+            throw new \Exception("No router found, params = ".json_encode($data));
         }
         Request::init($ctrlName, $methodName, $data, ZConfig::get('view_mode', 'Json'));
         return true;

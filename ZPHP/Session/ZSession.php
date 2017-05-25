@@ -27,7 +27,8 @@ class ZSession
     public static function start($sessionType = '', $config = '')
     {
         if(Request::isLongServer()) {
-            return Swoole::start($sessionType, $config);
+            Swoole::start($sessionType, $config);
+            return;
         }
 
         if(false === self::$isStart) {
@@ -61,10 +62,8 @@ class ZSession
 
             if (!empty($sessionType)) {
                 $handler = self::getInstance($sessionType, $config);
-                ZLog::info('aaa', ["handler", $sessionType, $config]);
                 \session_set_save_handler($handler, true);
             }
-            
             
             \session_start();
             self::$isStart = true;

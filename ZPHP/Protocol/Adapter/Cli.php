@@ -21,11 +21,12 @@ class Cli implements IProtocol
      * 原始格式： a=action&m=method&param1=val1
      * @param $_data
      * @return bool
+     * @throws \Exception
      */
     public function parse($_data)
     {
-        $ctrlName = ZConfig::get('default_ctrl_name', 'main\\main');
-        $methodName = ZConfig::get('default_method_name', 'main');
+        $ctrlName = "";
+        $methodName = "";
         \parse_str(array_pop($_data), $data);
         $apn = ZConfig::get('ctrl_name', 'a');
         $mpn = ZConfig::get('method_name', 'm');
@@ -34,6 +35,9 @@ class Cli implements IProtocol
         }
         if (isset($data[$mpn])) {
             $methodName = $data[$mpn];
+        }
+        if (empty($ctrlName) || empty($methodName)) {
+            throw new \Exception("No router found, params = ".json_encode($data));
         }
         Request::init($ctrlName, $methodName, $data, ZConfig::get('view_mode', 'String'));
         return true;
