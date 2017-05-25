@@ -213,9 +213,12 @@ class ActiveRecord
         return $this;
     }
 
-    public function limit($num)
+    public function limit($start, $length = false)
     {
-        $this->_limit = "limit ".filter_var($num, FILTER_VALIDATE_INT);
+        $this->_limit = "limit ".filter_var($start, FILTER_VALIDATE_INT);
+        if ($length) {
+            $this->_limit .= ", ".filter_var($length, FILTER_VALIDATE_INT);
+        }
         return $this;
     }
 

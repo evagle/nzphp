@@ -210,7 +210,7 @@ class Connection
         }
 
         if ($limit) {
-            $query .= " limit " . $limit;
+            $query .= " " . $limit;
         }
         $statement = $this->pdo->prepare($query);
         $this->lastSql = $query;
