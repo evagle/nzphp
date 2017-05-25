@@ -213,11 +213,11 @@ class ActiveRecord
         return $this;
     }
 
-    public function limit($start, $length = false)
+    public function limit($length, $offset = false)
     {
-        $this->_limit = "limit ".filter_var($start, FILTER_VALIDATE_INT);
+        $this->_limit = "LIMIT ".filter_var($length, FILTER_VALIDATE_INT);
         if ($length) {
-            $this->_limit .= ", ".filter_var($length, FILTER_VALIDATE_INT);
+            $this->_limit .= " OFFSET ".filter_var($offset, FILTER_VALIDATE_INT);
         }
         return $this;
     }
