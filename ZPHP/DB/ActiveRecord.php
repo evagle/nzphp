@@ -216,7 +216,7 @@ class ActiveRecord
     public function limit($length, $offset = false)
     {
         $this->_limit = "LIMIT ".filter_var($length, FILTER_VALIDATE_INT);
-        if ($length) {
+        if ($offset) {
             $this->_limit .= " OFFSET ".filter_var($offset, FILTER_VALIDATE_INT);
         }
         return $this;
