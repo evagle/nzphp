@@ -104,7 +104,10 @@ class Connection
                 throw new \Exception("Table {$this->dbName}.{$table} not exist");
             }
             foreach ($columns as $item) {
-                $result[$item['COLUMN_NAME']] = [$this->changeColumnType($item['DATA_TYPE']), $item['COLUMN_DEFAULT']];
+                $result[$item['COLUMN_NAME']] = [
+                    $this->changeColumnType($item['DATA_TYPE']),
+                    $this->changeColumnDefault($item['COLUMN_DEFAULT'])
+                ];
             }
             return $result;
         }
@@ -121,6 +124,15 @@ class Connection
             return ActiveRecord::COLUMN_TYPE_FLOAT;
         } else {
             return ActiveRecord::COLUMN_TYPE_STRING;
+        }
+    }
+
+    protected function changeColumnDefault($defaultValue)
+    {
+        if ($defaultValue == "CURRENT_TIMESTAMP") {
+            return null;
+        } else {
+            return $defaultValue;
         }
     }
 
