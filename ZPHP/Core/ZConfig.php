@@ -19,23 +19,12 @@ class ZConfig
 
     public static function load($configPath)
     {
-        $files = Dir::tree($configPath, "/.php$/");
-        // 不要直接使用$config,include app.php时会导出变量$config,产生覆盖
-        // 优先加载public.configs.php的配置, 项目配置覆盖public配置
-        $__zconfig = array();
-        if (!empty($files)) {
-            foreach ($files as $i => $file) {
-                if (substr($file, -18) == "public.configs.php") {
-                    $__zconfig += include "{$file}";
-                    unset($files[$i]);
-                    break;
-                }
-            }
-            foreach ($files as $file) {
-                $__zconfig += include "{$file}";
-            }
+        // 配置文件入口为app.php
+        $file = $configPath . "/app.php";
+        if (!file_exists($file)) {
+            throw new \Exception("Config file not found：$file");
         }
-        self::$config = $__zconfig;
+        self::$config = require "$file";
         if (Request::isLongServer()) {
             self::$configPath = $configPath;
             self::$nextCheckTime = time() + empty($config['config_check_time']) ? 5 : $config['config_check_time'];
