@@ -24,7 +24,7 @@ class ZConfig
         if (!file_exists($file)) {
             throw new \Exception("Config file not found：$file");
         }
-        self::$config = require "$file";
+        self::$config = include "$file";
         if (Request::isLongServer()) {
             self::$configPath = $configPath;
             self::$nextCheckTime = time() + empty($config['config_check_time']) ? 5 : $config['config_check_time'];
