@@ -41,7 +41,7 @@ class ZConfig
                 $file = $dir . "/" .$file;
             }
             $content =  include "{$file}";
-            if (!empty($content)) {
+            if (!empty($content) && is_array($content)) {
                 $__config = array_merge($__config, $content);
             }
         }
