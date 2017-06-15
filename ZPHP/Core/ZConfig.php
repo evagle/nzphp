@@ -33,10 +33,13 @@ class ZConfig
         return self::$config;
     }
 
-    public static function loadFiles(array $files)
+    public static function loadFiles(array $files, $dir = null)
     {
         $__config = array();
         foreach ($files as $file) {
+            if (!empty($dir)) {
+                $file = $dir . "/" .$file;
+            }
             $content =  include "{$file}";
             if (!empty($content)) {
                 $__config = array_merge($__config, $content);
