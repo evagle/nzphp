@@ -12,15 +12,15 @@ use ZPHP\Common\Dir;
 class ZConfig
 {
 
-    private static $config;
+    private static $config = array();
     private static $nextCheckTime = 0;
     private static $lastModifyTime = 0;
     private static $configPath;
 
     public static function load($configPath)
     {
-        // 配置文件入口为app.php
-        $file = $configPath . "/app.php";
+        // 配置文件入口为main.php
+        $file = $configPath . "/main.php";
         if (!file_exists($file)) {
             throw new \Exception("Config file not found：$file");
         }
@@ -37,9 +37,10 @@ class ZConfig
     {
         $__config = array();
         foreach ($files as $file) {
-            $__config += include "{$file}";
+            $content =  include "{$file}";
+            $__config = array_merge($__config, $content);
         }
-        self::$config = $__config;
+        self::$config = array_merge(self::$config, $__config);
         return self::$config;
     }
 
