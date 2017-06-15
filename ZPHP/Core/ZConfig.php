@@ -24,7 +24,7 @@ class ZConfig
         if (!file_exists($file)) {
             throw new \Exception("Config file not found：$file");
         }
-        self::$config = include "$file";
+        include "$file";
         if (Request::isLongServer()) {
             self::$configPath = $configPath;
             self::$nextCheckTime = time() + empty($config['config_check_time']) ? 5 : $config['config_check_time'];
@@ -38,7 +38,9 @@ class ZConfig
         $__config = array();
         foreach ($files as $file) {
             $content =  include "{$file}";
-            $__config = array_merge($__config, $content);
+            if (!empty($content)) {
+                $__config = array_merge($__config, $content);
+            }
         }
         self::$config = array_merge(self::$config, $__config);
         return self::$config;
