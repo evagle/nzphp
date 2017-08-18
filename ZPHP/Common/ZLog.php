@@ -25,28 +25,31 @@ class ZLog
      */
     public static function getFileLogger($logFileName)
     {
-        if (empty(self::$fileLoggers[$logFileName])) {
-            if (!is_string($logFileName)) {
-                throw new \Exception('log name must be string. name='. json_encode($logFileName));
-            }
-            self::$fileLoggers[$logFileName] = new Logger('NZPHP_File_Logger');
-            $date = \date("Ymd");
-            $logPath = ZConfig::getField('Paths', 'log_path');
-            if(empty($logPath)) {
-                $dir = ZPHP::getRootPath() . DS . 'log' . DS . $date;
-            } else {
-                $dir = $logPath . DS . $date;
-            }
-            Dir::make($dir);
-            $logFile = $dir . \DS . $logFileName . '.log';
+        if (!is_string($logFileName)) {
+            throw new \Exception('log name must be string. name=' . json_encode($logFileName));
+        }
+        $logPath = ZConfig::getField('Paths', 'log_path');
+        $date = \date("Ymd");
+        if(empty($logPath)) {
+            $dir = ZPHP::getRootPath() . DS . 'log' . DS . $date;
+        } else {
+            $dir = $logPath . DS . $date;
+        }
+        Dir::make($dir);
+        $logFile = $dir . \DS . $logFileName . '.log';
+
+        if (empty(self::$fileLoggers[$logFile])) {
+            self::$fileLoggers[$logFile] = new Logger('NZPHP_File_Logger');
+
             $formatter = new LineFormatter(null, null, false, true);
             $debug = ZConfig::get('debug', 0);
             $logLevel = $debug ? Logger::DEBUG : Logger::INFO;
             $handler = new StreamHandler($logFile, $logLevel);
             $handler->setFormatter($formatter);
-            self::$fileLoggers[$logFileName]->pushHandler($handler);
+            self::$fileLoggers[$logFile]->pushHandler($handler);
         }
-        return self::$fileLoggers[$logFileName];
+
+        return self::$fileLoggers[$logFile];
     }
 
     protected static function format($data)
